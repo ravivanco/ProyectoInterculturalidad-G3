@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "DK-FITT",
+    "slug": "dk-fitt-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#F4F8F5"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#F4F8F5"
+      },
+      "package": "com.dkfitt.mobile"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dkfitt.mobile"
+    },
+    "plugins": [
+      "expo-secure-store",
+      "@react-native-community/datetimepicker"
+    ]
+  }
+}
