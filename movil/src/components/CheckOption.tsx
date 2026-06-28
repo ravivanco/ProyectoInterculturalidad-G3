@@ -1,0 +1,6 @@
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { colors } from '../theme/colors';
+export function CheckOption({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+  return <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: selected }} onPress={onPress} style={[styles.row, selected ? styles.selected : undefined]}><View style={[styles.box, selected ? styles.boxSelected : undefined]}>{selected ? <Text style={styles.check}>✓</Text> : null}</View><Text style={styles.label}>{label}</Text></Pressable>;
+}
+const styles = StyleSheet.create({ row: { alignItems: 'center', backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 12, borderWidth: 1, flexDirection: 'row', gap: 12, padding: 15 }, selected: { backgroundColor: colors.primarySoft, borderColor: colors.primary }, box: { alignItems: 'center', borderColor: colors.border, borderRadius: 5, borderWidth: 2, height: 22, justifyContent: 'center', width: 22 }, boxSelected: { backgroundColor: colors.primary, borderColor: colors.primary }, check: { color: colors.surface, fontSize: 14, fontWeight: '900' }, label: { color: colors.text, flex: 1, fontSize: 16, fontWeight: '600' } });
