@@ -105,6 +105,9 @@ export function RegisterScreen({ navigation }: Props) {
             {showDatePicker ? <DateTimePicker display="default" maximumDate={new Date()} mode="date" onChange={handleDate} value={selectedDate} /> : null}
           </View>
           <PrimaryButton loading={loading} onPress={submit} title="Crear cuenta" />
+          <Pressable onPress={() => navigation.navigate('Login')}>
+            <Text style={styles.login}>¿Ya tienes cuenta? Inicia sesión</Text>
+          </Pressable>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -130,4 +133,5 @@ const styles = StyleSheet.create({
   datePlaceholder: { color: colors.muted, fontSize: 16 },
   error: { color: colors.danger, fontSize: 13 },
   link: { color: colors.primary, fontWeight: '700', padding: 8 },
+  login: { color: colors.primary, fontSize: 15, fontWeight: '700', textAlign: 'center' },
 });

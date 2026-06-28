@@ -14,3 +14,8 @@ export type AuthSession = {
   refresh_token: string;
   perfil_completado: boolean;
 };
+
+export type LoginPayload = {
+  correo: string;
+  password: string;
+};
