@@ -5,10 +5,10 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { LoginScreen } from '../screens/auth/LoginScreen';
 import { RegisterScreen } from '../screens/auth/RegisterScreen';
 import { HomeScreen } from '../screens/HomeScreen';
-import { OnboardingWelcomeScreen } from '../screens/onboarding/OnboardingWelcomeScreen';
 import { getProfileCompleted, getToken } from '../services/tokenStorage';
 import { colors } from '../theme/colors';
 import type { RootStackParamList } from './types';
+import { OnboardingNavigator } from './OnboardingNavigator';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -29,7 +29,7 @@ export function RootNavigator() {
     <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
       <Stack.Screen component={LoginScreen} name="Login" />
       <Stack.Screen component={RegisterScreen} name="Register" />
-      <Stack.Screen component={OnboardingWelcomeScreen} name="Onboarding" />
+      <Stack.Screen component={OnboardingNavigator} name="Onboarding" />
       <Stack.Screen component={HomeScreen} name="Home" />
     </Stack.Navigator>
   );
