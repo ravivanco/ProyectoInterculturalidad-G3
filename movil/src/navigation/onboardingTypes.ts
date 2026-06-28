@@ -6,4 +6,5 @@ export type OnboardingStackParamList = {
   Sports: undefined;
   Preferences: undefined;
   Restrictions: undefined;
+  Success: undefined;
 };
