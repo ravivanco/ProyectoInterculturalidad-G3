@@ -112,7 +112,7 @@ export default function Layout() {
                 ].map(({ value, icon, label }) => (
                   <button
                     key={value}
-                    onClick={() => setTheme(value as any)}
+                    onClick={() => setTheme(value as 'light' | 'dark' | 'system')}
                     title={label}
                     className={`flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded text-[10px] transition-colors ${theme === value ? 'bg-primary/20 text-foreground border border-primary/30' : 'text-muted border border-transparent hover:bg-surface-hover'}`}
                   >

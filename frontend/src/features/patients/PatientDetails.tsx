@@ -30,8 +30,8 @@ export function PatientDetails() {
         setError(null);
         const data = await patientAPI.getPatientById(id);
         setPatient(data);
-      } catch (err: any) {
-        setError(err.message || 'Error al cargar el paciente');
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Error al cargar el paciente');
       } finally {
         setIsLoading(false);
       }
