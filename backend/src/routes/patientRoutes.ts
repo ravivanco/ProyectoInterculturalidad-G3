@@ -44,19 +44,47 @@ router.get(
   roleGuard(['nutricionista']),
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
-      const patients = await PatientProfile.findAll({
-        include: [{
-          model: User,
-          as: 'user',
-          attributes: ['id', 'email', 'role']
-        }]
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      const estado = req.query.estado as string | undefined;
+
+      const offset = (page - 1) * limit;
+
+      const whereCondition: any = {};
+
+      if (estado) {
+        whereCondition.estado_tratamiento = estado;
+      }
+
+      const { count, rows } = await PatientProfile.findAndCountAll({
+        where: whereCondition,
+        limit,
+        offset,
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'email', 'role'],
+          },
+        ],
       });
+
+      const patients = rows.map((patient: any) => ({
+        ...patient.toJSON(),
+        estado_tratamiento: patient.estado_tratamiento || 'pendiente',
+      }));
 
       res.status(200).json({
         success: true,
         statusCode: 200,
         message: 'Patients list retrieved successfully.',
-        data: patients,
+        data: {
+          page,
+          limit,
+          total: count,
+          totalPages: Math.ceil(count / limit),
+          patients,
+        },
       });
     } catch (error: any) {
       res.status(500).json({
@@ -66,7 +94,7 @@ router.get(
         error: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -97,55 +125,58 @@ router.get(
  *       500:
  *         description: Server error
  */
-router.get(
-  '/:id',
-  authGuard,
-  async (req: AuthenticatedRequest, res: Response): Promise<void> => {
-    const { id } = req.params;
+router.get('/:id', authGuard, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  const { id } = req.params;
 
-    try {
-      const patient = await PatientProfile.findByPk(id, {
-        include: [{
+  try {
+    const patient = await PatientProfile.findByPk(id, {
+      include: [
+        {
           model: User,
           as: 'user',
-          attributes: ['id', 'email', 'role']
-        }]
-      });
+          attributes: ['id', 'email', 'role'],
+        },
+      ],
+    });
 
-      if (!patient) {
-        res.status(404).json({
-          success: false,
-          statusCode: 404,
-          message: 'Patient profile not found.',
-        });
-        return;
-      }
-
-      // If user is a patient, check if they are accessing their own profile
-      if (req.user?.role === 'paciente' && req.user.userId !== patient.userId) {
-        res.status(403).json({
-          success: false,
-          statusCode: 403,
-          message: 'Forbidden. You can only access your own profile.',
-        });
-        return;
-      }
-
-      res.status(200).json({
-        success: true,
-        statusCode: 200,
-        message: 'Patient profile retrieved successfully.',
-        data: patient,
-      });
-    } catch (error: any) {
-      res.status(500).json({
+    if (!patient) {
+      res.status(404).json({
         success: false,
-        statusCode: 500,
-        message: 'Error retrieving patient profile.',
-        error: error.message,
+        statusCode: 404,
+        message: 'Patient profile not found.',
       });
+      return;
     }
+
+    // If user is a patient, check if they are accessing their own profile
+    if (req.user?.role === 'paciente' && req.user.userId !== patient.userId) {
+      res.status(403).json({
+        success: false,
+        statusCode: 403,
+        message: 'Forbidden. You can only access your own profile.',
+      });
+      return;
+    }
+
+    const patientData: any = patient.toJSON();
+
+    res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: 'Patient profile retrieved successfully.',
+      data: {
+        ...patientData,
+        estado_tratamiento: patientData.estado_tratamiento || 'pendiente',
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      statusCode: 500,
+      message: 'Error retrieving patient profile.',
+      error: error.message,
+    });
   }
-);
+});
 
 export default router;
