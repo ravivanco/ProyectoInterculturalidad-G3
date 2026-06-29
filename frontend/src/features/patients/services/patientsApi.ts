@@ -1,6 +1,7 @@
 import type { Patient } from '../../../shared/types';
 
 // TODO: Cambiar API_URL por la URL real del backend cuando Alejandro termine los endpoints
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const API_URL = 'http://localhost:3000/api';
 
 export const patientsAPI = {
