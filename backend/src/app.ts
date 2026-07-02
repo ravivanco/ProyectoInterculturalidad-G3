@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 
+import routes from "./routes";
 import healthRoutes from "./routes/health.routes";
 import { errorMiddleware } from "./middleware/error.middleware";
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/", healthRoutes);
+app.use("/api", routes);
 
 app.use(errorMiddleware);
 
