@@ -3,7 +3,25 @@ import { authGuard, AuthenticatedRequest } from '../middleware/authGuard';
 import ClinicalEvaluation from '../models/ClinicalEvaluation';
 
 const router = Router();
-
+/**
+ * @openapi
+ * /api/calorie-control/dashboard:
+ *   get:
+ *     summary: Dashboard calórico del paciente autenticado
+ *     description: Retorna meta calórica diaria, proteínas, carbohidratos y grasas desde la última evaluación clínica. Los cálculos automáticos incluyen IMC, TMB, GET y distribución de macronutrientes.
+ *     tags: [Calorie Control]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Dashboard calórico obtenido correctamente
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *       404:
+ *         description: No existe evaluación clínica para el paciente autenticado
+ *       500:
+ *         description: Error interno del servidor
+ */
 router.get(
   '/dashboard',
   authGuard,

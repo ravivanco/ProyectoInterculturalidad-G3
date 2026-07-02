@@ -41,7 +41,58 @@ const updateModuleStatus = async (
     });
   }
 };
-
+/**
+ * @openapi
+ * /api/nutrition-plans/{id}/lock:
+ *   patch:
+ *     summary: Bloquear módulo del plan nutricional
+ *     tags: [Nutrition Plans]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del plan nutricional
+ *     responses:
+ *       200:
+ *         description: Módulo bloqueado correctamente
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *       403:
+ *         description: Acceso permitido solo para nutricionistas
+ *       404:
+ *         description: Plan nutricional no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ *
+ * /api/nutrition-plans/{id}/unlock:
+ *   patch:
+ *     summary: Desbloquear módulo del plan nutricional
+ *     tags: [Nutrition Plans]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del plan nutricional
+ *     responses:
+ *       200:
+ *         description: Módulo desbloqueado correctamente
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *       403:
+ *         description: Acceso permitido solo para nutricionistas
+ *       404:
+ *         description: Plan nutricional no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
 router.patch(
   '/:id/lock',
   authGuard,

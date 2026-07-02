@@ -3,6 +3,31 @@ import ClinicalEvaluation from '../models/ClinicalEvaluation';
 import { authGuard, AuthenticatedRequest } from '../middleware/authGuard';
 
 const router = Router();
+/**
+ * @openapi
+ * /api/clinical-evaluations/patient/{id}:
+ *   get:
+ *     summary: Historial de evaluaciones clínicas de un paciente
+ *     tags: [Clinical Evaluations]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del paciente
+ *     responses:
+ *       200:
+ *         description: Historial obtenido correctamente
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *       403:
+ *         description: Acceso permitido solo para nutricionistas
+ *       500:
+ *         description: Error interno del servidor
+ */
 
 router.get(
   '/patient/:id',
