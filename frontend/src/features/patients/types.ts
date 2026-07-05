@@ -1,4 +1,4 @@
-import type { TreatmentState } from '../../../shared/types';
+import type { TreatmentState } from '../../shared/types';
 
 export type GeneralState = 'Alta Adherencia' | 'Media Adherencia' | 'Baja Adherencia';
 
