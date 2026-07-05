@@ -3,6 +3,20 @@ import { authGuard, AuthenticatedRequest } from '../middleware/authGuard';
 import ClinicalEvaluation from '../models/ClinicalEvaluation';
 
 const router = Router();
+
+const PROTEIN_RATIO = 0.25;
+const CARBS_RATIO = 0.45;
+const FAT_RATIO = 0.3;
+const KCAL_PER_GRAM_PROTEIN = 4;
+const KCAL_PER_GRAM_CARBS = 4;
+const KCAL_PER_GRAM_FAT = 9;
+
+const gramsFromCalories = (
+  calories: number,
+  ratio: number,
+  kcalPerGram: number
+): number => Number(((calories * ratio) / kcalPerGram).toFixed(1));
+
 /**
  * @openapi
  * /api/calorie-control/dashboard:
@@ -27,7 +41,10 @@ router.get(
   authGuard,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
+      const patientId = Number(req.user?.userId);
+
       const evaluation = await ClinicalEvaluation.findOne({
+        where: Number.isNaN(patientId) ? {} : { patientId },
         order: [['createdAt', 'DESC']]
       });
 
@@ -38,13 +55,16 @@ router.get(
         });
       }
 
+      const calories = evaluation.calories;
+
       return res.json({
         success: true,
         data: {
-          meta_calorica_diaria: evaluation.calories,
-          proteinas_g: 0,
-          carbohidratos_g: 0,
-          grasas_g: 0
+          meta_calorica_diaria: calories,
+          imc: evaluation.bmi,
+          proteinas_g: gramsFromCalories(calories, PROTEIN_RATIO, KCAL_PER_GRAM_PROTEIN),
+          carbohidratos_g: gramsFromCalories(calories, CARBS_RATIO, KCAL_PER_GRAM_CARBS),
+          grasas_g: gramsFromCalories(calories, FAT_RATIO, KCAL_PER_GRAM_FAT)
         }
       });
     } catch (error) {
