@@ -1,9 +1,12 @@
 import { Router, Response } from 'express';
+import { Op } from 'sequelize';
 import { authGuard, AuthenticatedRequest } from '../middleware/authGuard';
 import { roleGuard } from '../middleware/roleGuard';
 import { PatientProfile, User } from '../models';
 
 const router = Router();
+
+const VALID_ESTADOS = ['pendiente', 'activo', 'finalizado'];
 
 /**
  * @openapi
@@ -13,6 +16,28 @@ const router = Router();
  *     tags: [Patients]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: estado
+ *         schema:
+ *           type: string
+ *           enum: [pendiente, activo, finalizado]
+ *         description: Filtra pacientes por estado de tratamiento
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Busca pacientes por email (coincidencia parcial)
  *     responses:
  *       200:
  *         description: List of patients retrieved successfully
@@ -47,26 +72,41 @@ router.get(
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
       const estado = req.query.estado as string | undefined;
+      const search = (req.query.search as string | undefined)?.trim();
 
       const offset = (page - 1) * limit;
 
       const whereCondition: any = {};
 
       if (estado) {
+        if (!VALID_ESTADOS.includes(estado)) {
+          res.status(400).json({
+            success: false,
+            statusCode: 400,
+            message: `Invalid estado. Allowed values: ${VALID_ESTADOS.join(', ')}.`,
+          });
+          return;
+        }
         whereCondition.estado_tratamiento = estado;
+      }
+
+      const userInclude: any = {
+        model: User,
+        as: 'user',
+        attributes: ['id', 'email', 'role'],
+      };
+
+      if (search) {
+        userInclude.where = { email: { [Op.iLike]: `%${search}%` } };
+        userInclude.required = true;
       }
 
       const { count, rows } = await PatientProfile.findAndCountAll({
         where: whereCondition,
         limit,
         offset,
-        include: [
-          {
-            model: User,
-            as: 'user',
-            attributes: ['id', 'email', 'role'],
-          },
-        ],
+        order: [['createdAt', 'DESC']],
+        include: [userInclude],
       });
 
       const patients = rows.map((patient: any) => ({
