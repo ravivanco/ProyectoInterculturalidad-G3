@@ -4,6 +4,7 @@ import { Login } from './features/auth';
 import { Dashboard } from './features/dashboard';
 import { Patients, PatientDetails } from './features/patients';
 import { Foods } from './features/foods';
+import { Plans } from './features/plans';
 import Layout from './components/Layout';
 
 // Rutas protegidas muy simples leyendo el token
@@ -28,6 +29,7 @@ function App() {
           <Route path="/patients" element={<Patients />} />
           <Route path="/patients/:id" element={<PatientDetails />} />
           <Route path="/foods" element={<Foods />} />
+          <Route path="/plans" element={<Plans />} />
         </Route>
         
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
