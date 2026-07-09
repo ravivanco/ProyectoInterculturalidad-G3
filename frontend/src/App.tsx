@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Login } from './features/auth';
 import { Dashboard } from './features/dashboard';
 import { Patients, PatientDetails } from './features/patients';
+import { Foods } from './features/foods';
 import Layout from './components/Layout';
 
 // Rutas protegidas muy simples leyendo el token
@@ -26,6 +27,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/patients" element={<Patients />} />
           <Route path="/patients/:id" element={<PatientDetails />} />
+          <Route path="/foods" element={<Foods />} />
         </Route>
         
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
