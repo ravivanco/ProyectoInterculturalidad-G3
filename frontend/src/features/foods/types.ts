@@ -1,5 +1,7 @@
 export type FoodCategory = 'Prote├¡nas' | 'Carbohidratos' | 'Grasas' | 'Frutas' | 'Verduras' | 'L├ícteos';
 
+export type NutritionalFilter = 'all' | 'high-protein' | 'low-carb' | 'low-fat' | 'low-cal';
+
 export interface Food {
   id: string;
   name: string;

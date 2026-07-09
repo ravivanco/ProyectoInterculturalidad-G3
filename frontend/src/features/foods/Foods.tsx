@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Search, Plus, Apple, Flame, Edit2, CheckCircle2, Filter } from 'lucide-react';
-import type { Food, FoodCategory, CreateFoodInput } from './types';
+import type { Food, FoodCategory, CreateFoodInput, NutritionalFilter } from './types';
 import { INITIAL_FOODS } from './services/mockFoods';
 import { FoodFormModal } from './components/FoodFormModal';
 
@@ -13,6 +13,27 @@ const CATEGORIES: ('Todos' | FoodCategory)[] = [
   'Verduras',
   'L├ícteos',
 ];
+
+function HighlightText({ text, highlight }: { text: string; highlight: string }) {
+  if (!highlight.trim()) return <span>{text}</span>;
+  const parts = text.split(new RegExp(`(${highlight.trim()})`, 'gi'));
+  return (
+    <span>
+      {parts.map((part, i) =>
+        part.toLowerCase() === highlight.trim().toLowerCase() ? (
+          <span
+            key={i}
+            className="bg-amber-300 dark:bg-amber-500/40 text-gray-900 dark:text-white font-extrabold px-1 rounded shadow-sm"
+          >
+            {part}
+          </span>
+        ) : (
+          part
+        )
+      )}
+    </span>
+  );
+}
 
 export function Foods() {
   const [foods, setFoods] = useState<Food[]>(() => {
@@ -30,10 +51,12 @@ export function Foods() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<'Todos' | FoodCategory>('Todos');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [nutritionalFilter, setNutritionalFilter] = useState<NutritionalFilter>('all');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingFood, setEditingFood] = useState<Food | null>(null);
+  const [prefillFoodName, setPrefillFoodName] = useState('');
 
   useEffect(() => {
     localStorage.setItem('dkfitt_foods', JSON.stringify(foods));
@@ -57,13 +80,15 @@ export function Foods() {
     );
   };
 
-  const handleOpenCreateModal = () => {
+  const handleOpenCreateModal = (prefill?: string) => {
     setEditingFood(null);
+    setPrefillFoodName(typeof prefill === 'string' ? prefill : '');
     setIsModalOpen(true);
   };
 
   const handleOpenEditModal = (food: Food) => {
     setEditingFood(food);
+    setPrefillFoodName('');
     setIsModalOpen(true);
   };
 
@@ -87,7 +112,13 @@ export function Foods() {
 
   const filteredFoods = useMemo(() => {
     return foods.filter((food) => {
-      const matchesSearch = food.name.toLowerCase().includes(searchQuery.trim().toLowerCase());
+      const query = searchQuery.trim().toLowerCase();
+      const matchesSearch =
+        query === '' ||
+        food.name.toLowerCase().includes(query) ||
+        food.servingSize.toLowerCase().includes(query) ||
+        food.category.toLowerCase().includes(query);
+
       const matchesCategory = selectedCategory === 'Todos' || food.category === selectedCategory;
       const matchesStatus =
         statusFilter === 'all'
@@ -96,9 +127,22 @@ export function Foods() {
           ? food.isActive
           : !food.isActive;
 
-      return matchesSearch && matchesCategory && matchesStatus;
+      const matchesNutritional =
+        nutritionalFilter === 'all'
+          ? true
+          : nutritionalFilter === 'high-protein'
+          ? food.protein >= 15
+          : nutritionalFilter === 'low-carb'
+          ? food.carbs <= 15
+          : nutritionalFilter === 'low-fat'
+          ? food.fat <= 5
+          : nutritionalFilter === 'low-cal'
+          ? food.calories <= 120
+          : true;
+
+      return matchesSearch && matchesCategory && matchesStatus && matchesNutritional;
     });
-  }, [foods, searchQuery, selectedCategory, statusFilter]);
+  }, [foods, searchQuery, selectedCategory, statusFilter, nutritionalFilter]);
 
   const getCategoryBadgeStyle = (category: FoodCategory) => {
     switch (category) {
@@ -165,7 +209,7 @@ export function Foods() {
           </div>
 
           <button
-            onClick={handleOpenCreateModal}
+            onClick={() => handleOpenCreateModal()}
             className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-gray-900 font-semibold py-3 px-6 rounded-2xl transition-all text-sm shadow-md hover:shadow-lg active:scale-95 shrink-0"
           >
             <Plus size={18} /> Nuevo Alimento
@@ -181,19 +225,27 @@ export function Foods() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
             <input
               type="text"
-              placeholder="Buscar por nombre de alimento..."
+              placeholder="Buscar por nombre, raci├│n o categor├¡a..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-surface-hover border border-border rounded-2xl pl-11 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+              className="w-full bg-surface-hover border border-border rounded-2xl pl-11 pr-24 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
             />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-muted hover:text-foreground bg-surface p-1 rounded-full"
-              >
-                Γ£ò
-              </button>
-            )}
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+              {searchQuery && (
+                <span className="text-[10px] font-bold bg-primary/20 text-primary px-2 py-0.5 rounded-full whitespace-nowrap">
+                  {filteredFoods.length} efic.
+                </span>
+              )}
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="text-xs font-semibold text-muted hover:text-foreground bg-surface p-1 rounded-full border border-border"
+                  title="Limpiar b├║squeda"
+                >
+                  Γ£ò
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Status Filter Toggle */}
@@ -236,6 +288,60 @@ export function Foods() {
             );
           })}
         </div>
+
+        {/* Quick Nutritional Filters (Chips WOW) */}
+        <div className="flex items-center justify-between flex-wrap gap-3 pt-3 border-t border-border">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+            <span className="text-[11px] font-extrabold text-muted uppercase tracking-wider shrink-0 flex items-center gap-1">
+              <span>ΓÜí Filtros Nutricionales:</span>
+            </span>
+            {[
+              { id: 'all', label: 'Todos los macros', color: 'bg-surface-hover text-foreground' },
+              { id: 'high-protein', label: 'ΓÜí Alto en Prote├¡na (>15g)', color: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20' },
+              { id: 'low-carb', label: '≡ƒìâ Bajo en Carbos (Γëñ15g)', color: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20' },
+              { id: 'low-fat', label: '≡ƒÑæ Bajo en Grasa (Γëñ5g)', color: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20' },
+              { id: 'low-cal', label: '≡ƒöÑ Bajo en Calor├¡as (Γëñ120 kcal)', color: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20' },
+            ].map((chip) => {
+              const isActive = nutritionalFilter === chip.id;
+              return (
+                <button
+                  key={chip.id}
+                  onClick={() => setNutritionalFilter(chip.id as NutritionalFilter)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                    isActive
+                      ? 'bg-primary text-gray-900 border-primary shadow-sm font-extrabold'
+                      : `${chip.color} border-border hover:border-muted`
+                  }`}
+                >
+                  {chip.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Active Filters Counter & Clear Button */}
+          {(searchQuery || selectedCategory !== 'Todos' || statusFilter !== 'all' || nutritionalFilter !== 'all') && (
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedCategory('Todos');
+                setStatusFilter('all');
+                setNutritionalFilter('all');
+              }}
+              className="text-xs font-bold text-rose-500 hover:text-rose-600 dark:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 ml-auto"
+            >
+              <span>Limpiar Filtros Activos</span>
+              <span className="w-4 h-4 rounded-full bg-rose-500 text-white flex items-center justify-center text-[10px]">
+                {[
+                  searchQuery ? 1 : 0,
+                  selectedCategory !== 'Todos' ? 1 : 0,
+                  statusFilter !== 'all' ? 1 : 0,
+                  nutritionalFilter !== 'all' ? 1 : 0,
+                ].reduce((a, b) => a + b, 0)}
+              </span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Foods Table */}
@@ -268,7 +374,9 @@ export function Foods() {
                           {food.name.charAt(0)}
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-foreground leading-snug">{food.name}</p>
+                          <p className="text-sm font-bold text-foreground leading-snug">
+                            <HighlightText text={food.name} highlight={searchQuery} />
+                          </p>
                           <span
                             className={`inline-block mt-1 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold tracking-wide ${getCategoryBadgeStyle(
                               food.category
@@ -283,7 +391,7 @@ export function Foods() {
                     {/* Raci├│n */}
                     <td className="py-4 px-6">
                       <span className="text-sm font-semibold text-foreground bg-surface-hover px-3 py-1.5 rounded-xl border border-border inline-block">
-                        {food.servingSize}
+                        <HighlightText text={food.servingSize} highlight={searchQuery} />
                       </span>
                     </td>
 
@@ -359,34 +467,48 @@ export function Foods() {
             </table>
           </div>
         ) : (
-          /* Empty State */
+          /* Smart Empty State (PROYEC-524) */
           <div className="py-16 flex flex-col items-center justify-center text-center px-4">
-            <div className="w-16 h-16 rounded-full bg-surface-hover flex items-center justify-center text-muted mb-4 border border-border">
-              <Apple size={28} className="opacity-50" />
+            <div className="w-16 h-16 rounded-full bg-surface-hover flex items-center justify-center text-muted mb-4 border border-border shadow-inner">
+              <Apple size={28} className="opacity-50 text-primary" />
             </div>
-            <h3 className="text-lg font-bold text-foreground">No se encontraron alimentos</h3>
-            <p className="text-muted text-sm max-w-md mt-1 mb-6">
-              No hay alimentos que coincidan con tu b├║squeda o filtros actuales en la biblioteca.
+            <h3 className="text-xl font-extrabold text-foreground">
+              {searchQuery ? `No encontramos "${searchQuery.trim()}" en la biblioteca` : 'No se encontraron alimentos'}
+            </h3>
+            <p className="text-muted text-sm max-w-md mt-1.5 mb-6">
+              {searchQuery
+                ? `No existe ning├║n alimento registrado con ese t├⌐rmino. ┬┐Deseas crearlo ahora mismo o limpiar los filtros activos?`
+                : `No hay alimentos que coincidan con la combinaci├│n actual de filtros en la biblioteca.`}
             </p>
-            <div className="flex items-center gap-3">
-              {(searchQuery || selectedCategory !== 'Todos' || statusFilter !== 'all') && (
+            <div className="flex items-center justify-center flex-wrap gap-3">
+              {(searchQuery || selectedCategory !== 'Todos' || statusFilter !== 'all' || nutritionalFilter !== 'all') && (
                 <button
                   onClick={() => {
                     setSearchQuery('');
                     setSelectedCategory('Todos');
                     setStatusFilter('all');
+                    setNutritionalFilter('all');
                   }}
                   className="px-5 py-2.5 bg-surface-hover hover:bg-border text-foreground rounded-xl text-xs font-bold transition-all border border-border"
                 >
-                  Limpiar Filtros
+                  Limpiar Filtros Activos
                 </button>
               )}
-              <button
-                onClick={handleOpenCreateModal}
-                className="px-5 py-2.5 bg-primary hover:bg-primary-hover text-gray-900 rounded-xl text-xs font-bold transition-all shadow-sm"
-              >
-                + Nuevo Alimento
-              </button>
+              {searchQuery ? (
+                <button
+                  onClick={() => handleOpenCreateModal(searchQuery.trim())}
+                  className="px-6 py-2.5 bg-primary hover:bg-primary-hover text-gray-900 rounded-xl text-xs font-extrabold transition-all shadow-md flex items-center gap-1.5"
+                >
+                  <Plus size={16} /> Crear "{searchQuery.trim()}" como nuevo alimento
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleOpenCreateModal()}
+                  className="px-5 py-2.5 bg-primary hover:bg-primary-hover text-gray-900 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5"
+                >
+                  <Plus size={16} /> Nuevo Alimento
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -398,6 +520,7 @@ export function Foods() {
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveFood}
         initialData={editingFood}
+        prefillName={prefillFoodName}
       />
     </div>
   );
