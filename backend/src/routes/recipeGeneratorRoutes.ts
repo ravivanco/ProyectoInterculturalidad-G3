@@ -16,6 +16,17 @@ const MEALS = [
 
 const round = (n: number): number => Math.round(n * 10) / 10;
 
+interface PlainFood {
+  id: number;
+  name: string;
+  category: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  portionGrams: number;
+}
+
 interface PlannedItem {
   foodId: number;
   name: string;
@@ -28,7 +39,7 @@ interface PlannedItem {
 }
 
 const buildMeal = (
-  foods: Food[],
+  foods: PlainFood[],
   targetCalories: number,
   startIndex: number
 ): { items: PlannedItem[]; totalCalories: number } => {
@@ -130,7 +141,8 @@ router.post(
         where.category = categories;
       }
 
-      const foods = await Food.findAll({ where, order: [['id', 'ASC']] });
+      const foodInstances = await Food.findAll({ where, order: [['id', 'ASC']] });
+      const foods = foodInstances.map((f) => f.toJSON() as PlainFood);
 
       if (foods.length === 0) {
         res.status(400).json({

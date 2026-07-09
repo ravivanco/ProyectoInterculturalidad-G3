@@ -232,17 +232,18 @@ router.put(
 
       const { name, category, calories, protein, carbs, fat, portionGrams, imageUrl, description } = req.body;
 
-      if (name !== undefined) food.name = name;
-      if (category !== undefined) food.category = category;
-      if (calories !== undefined) food.calories = calories;
-      if (protein !== undefined) food.protein = protein;
-      if (carbs !== undefined) food.carbs = carbs;
-      if (fat !== undefined) food.fat = fat;
-      if (portionGrams !== undefined) food.portionGrams = portionGrams;
-      if (imageUrl !== undefined) food.imageUrl = imageUrl;
-      if (description !== undefined) food.description = description;
+      const updates: any = {};
+      if (name !== undefined) updates.name = name;
+      if (category !== undefined) updates.category = category;
+      if (calories !== undefined) updates.calories = calories;
+      if (protein !== undefined) updates.protein = protein;
+      if (carbs !== undefined) updates.carbs = carbs;
+      if (fat !== undefined) updates.fat = fat;
+      if (portionGrams !== undefined) updates.portionGrams = portionGrams;
+      if (imageUrl !== undefined) updates.imageUrl = imageUrl;
+      if (description !== undefined) updates.description = description;
 
-      await food.save();
+      await food.update(updates);
 
       res.status(200).json({ success: true, message: 'Food updated successfully.', data: food });
     } catch (error) {
