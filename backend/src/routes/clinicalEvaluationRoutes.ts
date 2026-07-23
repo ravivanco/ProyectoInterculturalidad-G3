@@ -1,9 +1,11 @@
+// PG3-157 — POST /api/clinical-evaluations con cálculo automático de IMC (Sprint 2, Bryan Gualpa)
 import { Router, Response } from 'express';
 import ClinicalEvaluation from '../models/ClinicalEvaluation';
 import { authGuard, AuthenticatedRequest } from '../middleware/authGuard';
 
 const router = Router();
 
+// Acepta estatura en metros o centímetros antes de calcular el IMC
 const toMeters = (height: number): number => (height > 3 ? height / 100 : height);
 
 const calculateBmi = (weight: number, height: number): number => {

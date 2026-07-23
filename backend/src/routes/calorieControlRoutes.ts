@@ -1,9 +1,11 @@
+// PG3-163 — Dashboard calórico: macros desde la última evaluación clínica (Sprint 2, Bryan Gualpa)
 import { Router, Response } from 'express';
 import { authGuard, AuthenticatedRequest } from '../middleware/authGuard';
 import ClinicalEvaluation from '../models/ClinicalEvaluation';
 
 const router = Router();
 
+// Distribución estándar: 25% proteína, 45% carbohidratos, 30% grasas
 const PROTEIN_RATIO = 0.25;
 const CARBS_RATIO = 0.45;
 const FAT_RATIO = 0.3;
