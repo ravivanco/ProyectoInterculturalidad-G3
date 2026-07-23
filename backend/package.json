@@ -7,7 +7,10 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsnd --respawn --transpile-only src/index.ts",
-    "sequelize": "sequelize"
+    "sequelize": "sequelize",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:migrate": "sequelize db:migrate"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

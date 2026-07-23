@@ -1,3 +1,4 @@
+// PG3-163 — Dashboard calórico: macros desde la última evaluación clínica (Sprint 2, Bryan Gualpa)
 import { Router, Response } from 'express';
 import { authGuard, AuthenticatedRequest } from '../middleware/authGuard';
 import ClinicalEvaluation from '../models/ClinicalEvaluation';

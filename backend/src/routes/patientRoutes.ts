@@ -1,3 +1,4 @@
+// PG3-161 — GET /api/patients: búsqueda por email, filtro estado y paginación (Sprint 2, Bryan Gualpa)
 import { Router, Response } from 'express';
 import { Op } from 'sequelize';
 import { authGuard, AuthenticatedRequest } from '../middleware/authGuard';

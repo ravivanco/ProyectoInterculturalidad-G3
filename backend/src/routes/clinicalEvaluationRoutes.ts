@@ -1,3 +1,4 @@
+// PG3-157 — POST /api/clinical-evaluations con cálculo automático de IMC (Sprint 2, Bryan Gualpa)
 import { Router, Response } from 'express';
 import ClinicalEvaluation from '../models/ClinicalEvaluation';
 import { authGuard, AuthenticatedRequest } from '../middleware/authGuard';
