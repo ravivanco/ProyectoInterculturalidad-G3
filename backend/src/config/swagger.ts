@@ -1,3 +1,4 @@
+// API-S1 — Swagger UI /api-docs (Bryan Gualpa)
 import swaggerJSDoc from 'swagger-jsdoc';
 import { Express } from 'express';
 import swaggerUi from 'swagger-ui-express';

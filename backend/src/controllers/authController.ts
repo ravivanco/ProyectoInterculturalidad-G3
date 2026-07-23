@@ -1,3 +1,4 @@
+// API-S1 — Autenticación JWT register/login/refresh (Bryan Gualpa)
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { User, PatientProfile, NutritionistProfile, sequelize } from '../models';
