@@ -1,3 +1,4 @@
+// PG3-334 — POST /api/uploads/image: subida de imágenes vía multer + Cloudinary (Sprint 3, Bryan Gualpa)
 import { Router, Response } from 'express';
 import multer from 'multer';
 import { authGuard, AuthenticatedRequest } from '../middleware/authGuard';

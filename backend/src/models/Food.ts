@@ -1,3 +1,4 @@
+// PG3-332 — Modelo del catálogo de alimentos (Sprint 3, Bryan Gualpa)
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../config/database';
 

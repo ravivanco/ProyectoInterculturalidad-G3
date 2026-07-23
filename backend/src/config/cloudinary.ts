@@ -1,3 +1,4 @@
+// PG3-334 — Configuración Cloudinary para imágenes del catálogo (Sprint 3, Bryan Gualpa)
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
 

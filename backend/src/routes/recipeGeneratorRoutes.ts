@@ -1,3 +1,4 @@
+// PG3-336 — POST /api/recipe-generator/generate-week: plan semanal automático (Sprint 3, Bryan Gualpa)
 import { Router, Response } from 'express';
 import Food from '../models/Food';
 import ClinicalEvaluation from '../models/ClinicalEvaluation';
@@ -7,6 +8,7 @@ const router = Router();
 
 const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
+// Distribución diaria: 25% desayuno, 35% almuerzo, 15% merienda, 25% cena
 const MEALS = [
   { key: 'desayuno', label: 'Desayuno', ratio: 0.25 },
   { key: 'almuerzo', label: 'Almuerzo', ratio: 0.35 },

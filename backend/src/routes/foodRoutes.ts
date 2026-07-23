@@ -1,3 +1,4 @@
+// PG3-332 — CRUD /api/foods: búsqueda, categoría y paginación (Sprint 3, Bryan Gualpa)
 import { Router, Response } from 'express';
 import { Op } from 'sequelize';
 import Food from '../models/Food';
