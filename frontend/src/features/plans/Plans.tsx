@@ -414,14 +414,13 @@ export function Plans() {
                   <div className="flex items-center gap-2 bg-surface-hover px-3 py-2 rounded-xl border border-border">
                     <Clock size={15} className="text-muted shrink-0" />
                     <span className="text-xs font-bold text-muted">Horario:</span>
-                    <input
-                      type="text"
-                      value={meal.suggestedTime}
-                      disabled={!meal.isEnabled}
-                      onChange={(e) => handleUpdateMeal(meal.id, { suggestedTime: e.target.value })}
-                      placeholder="ej. 08:00 AM"
-                      className="w-24 text-xs font-extrabold text-foreground bg-transparent focus:outline-none"
-                    />
+               <input
+  type="time"
+  value={meal.suggestedTime}
+  disabled={!meal.isEnabled}
+  onChange={(e) => handleUpdateMeal(meal.id, { suggestedTime: e.target.value })}
+  className="w-24 text-xs font-extrabold text-foreground bg-transparent focus:outline-none"
+/>
                   </div>
 
                   {/* Target Calories Input */}
