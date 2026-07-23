@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+menusimport { useState, useEffect, useMemo } from 'react';
 import { FileText, Calendar, Clock, Flame, Plus, Copy, Save, Sparkles, User, Target, Check, Trash2, LayoutGrid, ListFilter } from 'lucide-react';
 import type { WeeklyPlan, DayOfWeek, MealConfig } from './types';
 import { INITIAL_PLANS, createDefaultWeekStructure, DISH_CATALOG } from './services/mockPlans';
@@ -331,14 +331,12 @@ export function Plans() {
               </span>
               <button
                 onClick={handleToggleWeekends}
-                className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors focus:outline-none ${
-                  activePlan.includeWeekends ? 'bg-primary' : 'bg-gray-600'
-                }`}
+                className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors focus:outline-none ${activePlan.includeWeekends ? 'bg-primary' : 'bg-gray-600'
+                  }`}
               >
                 <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
-                    activePlan.includeWeekends ? 'translate-x-8' : 'translate-x-1'
-                  }`}
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${activePlan.includeWeekends ? 'translate-x-8' : 'translate-x-1'
+                    }`}
                 />
               </button>
             </div>
@@ -351,11 +349,10 @@ export function Plans() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setViewMode('grid')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-extrabold text-xs transition-all ${
-              viewMode === 'grid'
-                ? 'bg-primary text-gray-900 shadow-sm scale-[1.02]'
-                : 'text-muted hover:text-foreground hover:bg-surface-hover'
-            }`}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-extrabold text-xs transition-all ${viewMode === 'grid'
+              ? 'bg-primary text-gray-900 shadow-sm scale-[1.02]'
+              : 'text-muted hover:text-foreground hover:bg-surface-hover'
+              }`}
           >
             <LayoutGrid size={16} />
             <span>≡ƒôà Grilla Semanal de Men├║s (Matriz)</span>
@@ -363,11 +360,10 @@ export function Plans() {
 
           <button
             onClick={() => setViewMode('days')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-extrabold text-xs transition-all ${
-              viewMode === 'days'
-                ? 'bg-primary text-gray-900 shadow-sm scale-[1.02]'
-                : 'text-muted hover:text-foreground hover:bg-surface-hover'
-            }`}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-extrabold text-xs transition-all ${viewMode === 'days'
+              ? 'bg-primary text-gray-900 shadow-sm scale-[1.02]'
+              : 'text-muted hover:text-foreground hover:bg-surface-hover'
+              }`}
           >
             <ListFilter size={16} />
             <span>≡ƒôæ Configurar Horarios y Tomas (Por D├¡as)</span>
@@ -392,174 +388,176 @@ export function Plans() {
       ) : (
         /* Weekly Structure Builder Section */
         <div className="bg-surface rounded-3xl border border-border shadow-sm overflow-hidden">
-        
-        {/* Days Navigation Tabs */}
-        <div className="flex items-center overflow-x-auto no-scrollbar border-b border-border bg-surface-hover/50 p-2 gap-2">
-          {visibleDays.map((day) => {
-            const isSelected = selectedDay === day;
-            const dayObj = activePlan.days.find((d) => d.day === day);
-            const dayCals = dayObj?.meals
-              .filter((m) => m.isEnabled)
-              .reduce((s, m) => s + (Number(m.targetCalories) || 0), 0) || 0;
 
-            return (
-              <button
-                key={day}
-                onClick={() => setSelectedDay(day)}
-                className={`flex flex-col items-start px-6 py-3.5 rounded-2xl transition-all min-w-[130px] shrink-0 border ${
-                  isSelected
+          {/* Days Navigation Tabs */}
+          <div className="flex items-center overflow-x-auto no-scrollbar border-b border-border bg-surface-hover/50 p-2 gap-2">
+            {visibleDays.map((day) => {
+              const isSelected = selectedDay === day;
+              const dayObj = activePlan.days.find((d) => d.day === day);
+              const dayCals = dayObj?.meals
+                .filter((m) => m.isEnabled)
+                .reduce((s, m) => s + (Number(m.targetCalories) || 0), 0) || 0;
+
+              return (
+                <button
+                  key={day}
+                  onClick={() => setSelectedDay(day)}
+                  className={`flex flex-col items-start px-6 py-3.5 rounded-2xl transition-all min-w-[130px] shrink-0 border ${isSelected
                     ? 'bg-primary text-gray-900 border-primary shadow-md font-extrabold scale-[1.02]'
                     : 'bg-surface text-muted hover:text-foreground border-border hover:border-muted'
-                }`}
-              >
-                <div className="flex items-center justify-between w-full">
-                  <span className="text-sm font-black tracking-tight">{day}</span>
-                  {isSelected && <Check size={16} className="text-gray-900 stroke-[3]" />}
-                </div>
-                <div className={`text-[11px] font-bold mt-1 flex items-center gap-1 ${isSelected ? 'text-gray-800' : 'text-emerald-600 dark:text-emerald-400'}`}>
-                  <Flame size={13} className={isSelected ? 'fill-gray-800' : 'fill-emerald-500'} />
-                  <span>{dayCals} kcal</span>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+                    }`}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-sm font-black tracking-tight">{day}</span>
+                    {isSelected && <Check size={16} className="text-gray-900 stroke-[3]" />}
+                  </div>
+                  <div className={`text-[11px] font-bold mt-1 flex items-center gap-1 ${isSelected ? 'text-gray-800' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                    <Flame size={13} className={isSelected ? 'fill-gray-800' : 'fill-emerald-500'} />
+                    <span>{dayCals} kcal</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
 
-        {/* Selected Day Content */}
-        <div className="p-6 md:p-8 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
-            <div>
-              <h3 className="text-2xl font-black text-foreground flex items-center gap-2">
-                <span>Comidas para el {selectedDay}</span>
-                <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1 rounded-xl border border-emerald-200 dark:border-emerald-500/20">
-                  Total: {dailyTotalCalories} kcal
-                </span>
-              </h3>
-              <p className="text-muted text-xs mt-0.5">
-                Activa las tomas de alimento necesarias, configura el horario sugerido para el paciente y la meta cal├│rica.
-              </p>
+          {/* Selected Day Content */}
+          <div className="p-6 md:p-8 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
+              <div>
+                <h3 className="text-2xl font-black text-foreground flex items-center gap-2">
+                  <span>Comidas para el {selectedDay}</span>
+                  <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1 rounded-xl border border-emerald-200 dark:border-emerald-500/20">
+                    Total: {dailyTotalCalories} kcal
+                  </span>
+                </h3>
+                <p className="text-muted text-xs mt-0.5">
+                  Activa las tomas de alimento necesarias, configura el horario sugerido para el paciente y la meta cal├│rica.
+                </p>
+              </div>
+
+              {/* WOW Button: Clone structure to all days */}
+              <button
+                onClick={handleCloneDayToAll}
+                className="bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 font-bold px-4 py-2.5 rounded-xl text-xs transition-all flex items-center gap-2 shadow-sm self-start sm:self-auto active:scale-95 shrink-0"
+                title="Copia los horarios, nombres y calor├¡as de este d├¡a a todos los dem├ís d├¡as visibles"
+              >
+                <Copy size={15} />
+                <span>ΓÜí Copiar estructura del {selectedDay} a toda la semana</span>
+              </button>
             </div>
 
-            {/* WOW Button: Clone structure to all days */}
-            <button
-              onClick={handleCloneDayToAll}
-              className="bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 font-bold px-4 py-2.5 rounded-xl text-xs transition-all flex items-center gap-2 shadow-sm self-start sm:self-auto active:scale-95 shrink-0"
-              title="Copia los horarios, nombres y calor├¡as de este d├¡a a todos los dem├ís d├¡as visibles"
-            >
-              <Copy size={15} />
-              <span>ΓÜí Copiar estructura del {selectedDay} a toda la semana</span>
-            </button>
-          </div>
-
-          {/* Meals Configuration List */}
-          <div className="space-y-3">
-            {currentDayData.meals.map((meal, index) => (
-              <div
-                key={meal.id}
-                className={`flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-2xl border transition-all ${
-                  meal.isEnabled
+            {/* Meals Configuration List */}
+            <div className="space-y-3">
+              {currentDayData.meals.map((meal, index) => (
+                <div
+                  key={meal.id}
+                  className={`flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-2xl border transition-all ${meal.isEnabled
                     ? 'bg-surface border-border shadow-sm hover:border-primary/40'
                     : 'bg-surface-hover/40 border-border/60 opacity-55'
-                }`}
-              >
-                {/* Enable Switch & Meal Name */}
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={() => handleUpdateMeal(meal.id, { isEnabled: !meal.isEnabled })}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 focus:outline-none ${
-                      meal.isEnabled ? 'bg-emerald-500' : 'bg-gray-400 dark:bg-gray-700'
                     }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        meal.isEnabled ? 'translate-x-6' : 'translate-x-1'
-                      }`}
-                    />
-                  </button>
-
-                  <div className="flex items-center gap-3">
-                    <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary font-black flex items-center justify-center text-sm shrink-0">
-                      {index + 1}
-                    </span>
-                    <div>
-                      <input
-                        type="text"
-                        value={meal.name}
-                        disabled={!meal.isEnabled}
-                        onChange={(e) => handleUpdateMeal(meal.id, { name: e.target.value })}
-                        className="font-bold text-base text-foreground bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none px-1 py-0.5 transition-colors"
+                >
+                  {/* Enable Switch & Meal Name */}
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => handleUpdateMeal(meal.id, { isEnabled: !meal.isEnabled })}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 focus:outline-none ${meal.isEnabled ? 'bg-emerald-500' : 'bg-gray-400 dark:bg-gray-700'
+                        }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${meal.isEnabled ? 'translate-x-6' : 'translate-x-1'
+                          }`}
                       />
-                      <span className="block text-[11px] font-bold text-muted px-1">
-                        {meal.isEnabled ? '≡ƒƒó Toma activa' : 'ΓÜ¬ Toma desactivada'}
+                    </button>
+
+                    <div className="flex items-center gap-3">
+                      <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary font-black flex items-center justify-center text-sm shrink-0">
+                        {index + 1}
                       </span>
+                      <div>
+                        <input
+                          type="text"
+                          value={meal.name}
+                          disabled={!meal.isEnabled}
+                          maxLength={50}
+                          title="Ingrese un nombre de hasta 50 caracteres"
+                          onChange={(e) =>
+                            handleUpdateMeal(meal.id, {
+                              name: e.target.value.trimStart().slice(0, 50),
+                            })
+                          }
+                          className="font-bold text-base text-foreground bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none px-1 py-0.5 transition-colors"
+                        />
+                        <span className="block text-[11px] font-bold text-muted px-1">
+                          {meal.isEnabled ? '≡ƒƒó Toma activa' : 'ΓÜ¬ Toma desactivada'}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Horario & Calor├¡as Inputs */}
-                <div className="flex items-center flex-wrap gap-4 pl-14 md:pl-0">
-                  {/* Suggested Time Input */}
-                  <div className="flex items-center gap-2 bg-surface-hover px-3 py-2 rounded-xl border border-border">
-                    <Clock size={15} className="text-muted shrink-0" />
-                    <span className="text-xs font-bold text-muted">Horario:</span>
-                    <input
-                      type="text"
-                      value={meal.suggestedTime}
-                      disabled={!meal.isEnabled}
-                      onChange={(e) => handleUpdateMeal(meal.id, { suggestedTime: e.target.value })}
-                      placeholder="ej. 08:00 AM"
-                      className="w-24 text-xs font-extrabold text-foreground bg-transparent focus:outline-none"
-                    />
+                  {/* Horario & Calor├¡as Inputs */}
+                  <div className="flex items-center flex-wrap gap-4 pl-14 md:pl-0">
+                    {/* Suggested Time Input */}
+                    <div className="flex items-center gap-2 bg-surface-hover px-3 py-2 rounded-xl border border-border">
+                      <Clock size={15} className="text-muted shrink-0" />
+                      <span className="text-xs font-bold text-muted">Horario:</span>
+                      <input
+                        type="text"
+                        value={meal.suggestedTime}
+                        disabled={!meal.isEnabled}
+                        onChange={(e) => handleUpdateMeal(meal.id, { suggestedTime: e.target.value })}
+                        placeholder="ej. 08:00 AM"
+                        className="w-24 text-xs font-extrabold text-foreground bg-transparent focus:outline-none"
+                      />
+                    </div>
+
+                    {/* Target Calories Input */}
+                    <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-500/10 px-3 py-2 rounded-xl border border-amber-200 dark:border-amber-500/20">
+                      <Flame size={16} className="text-amber-500 shrink-0 fill-amber-500" />
+                      <span className="text-xs font-bold text-amber-700 dark:text-amber-400">Meta:</span>
+                      <input
+                        type="number"
+                        value={meal.targetCalories}
+                        disabled={!meal.isEnabled}
+                        onChange={(e) => handleUpdateMeal(meal.id, { targetCalories: Math.max(0, parseInt(e.target.value) || 0) })}
+                        className="w-16 text-xs font-black text-amber-700 dark:text-amber-400 bg-transparent focus:outline-none text-right"
+                      />
+                      <span className="text-xs font-bold text-amber-700 dark:text-amber-400">kcal</span>
+                    </div>
+
+                    {/* Delete Meal Button if custom */}
+                    {currentDayData.meals.length > 3 && (
+                      <button
+                        onClick={() => handleDeleteMeal(meal.id, meal.name)}
+                        className="p-2 text-muted hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all"
+                        title="Eliminar esta toma del d├¡a"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
                   </div>
-
-                  {/* Target Calories Input */}
-                  <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-500/10 px-3 py-2 rounded-xl border border-amber-200 dark:border-amber-500/20">
-                    <Flame size={16} className="text-amber-500 shrink-0 fill-amber-500" />
-                    <span className="text-xs font-bold text-amber-700 dark:text-amber-400">Meta:</span>
-                    <input
-                      type="number"
-                      value={meal.targetCalories}
-                      disabled={!meal.isEnabled}
-                      onChange={(e) => handleUpdateMeal(meal.id, { targetCalories: Math.max(0, parseInt(e.target.value) || 0) })}
-                      className="w-16 text-xs font-black text-amber-700 dark:text-amber-400 bg-transparent focus:outline-none text-right"
-                    />
-                    <span className="text-xs font-bold text-amber-700 dark:text-amber-400">kcal</span>
-                  </div>
-
-                  {/* Delete Meal Button if custom */}
-                  {currentDayData.meals.length > 3 && (
-                    <button
-                      onClick={() => handleDeleteMeal(meal.id, meal.name)}
-                      className="p-2 text-muted hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all"
-                      title="Eliminar esta toma del d├¡a"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  )}
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
 
-          {/* Add Custom Meal & Save Footer Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-6 border-t border-border mt-8">
-            <button
-              onClick={handleAddCustomMeal}
-              className="px-5 py-3 bg-surface-hover hover:bg-border text-foreground font-bold rounded-2xl text-xs transition-all border border-border flex items-center justify-center gap-2"
-            >
-              <Plus size={16} /> + Agregar nueva toma o colaci├│n a este d├¡a
-            </button>
+            {/* Add Custom Meal & Save Footer Bar */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-6 border-t border-border mt-8">
+              <button
+                onClick={handleAddCustomMeal}
+                className="px-5 py-3 bg-surface-hover hover:bg-border text-foreground font-bold rounded-2xl text-xs transition-all border border-border flex items-center justify-center gap-2"
+              >
+                <Plus size={16} /> + Agregar nueva toma o colaci├│n a este d├¡a
+              </button>
 
-            <button
-              onClick={handleSaveConfiguration}
-              className="px-8 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold rounded-2xl text-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 active:scale-95"
-            >
-              <Save size={18} />
-              <span>≡ƒÆ╛ Guardar Estructura Semanal del Plan</span>
-            </button>
+              <button
+                onClick={handleSaveConfiguration}
+                className="px-8 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold rounded-2xl text-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 active:scale-95"
+              >
+                <Save size={18} />
+                <span>≡ƒÆ╛ Guardar Estructura Semanal del Plan</span>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
       )}
 
       {/* Modal de Creaci├│n de Nuevo Plan */}
