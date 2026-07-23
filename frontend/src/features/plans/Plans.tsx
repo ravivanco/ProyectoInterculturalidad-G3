@@ -100,37 +100,37 @@ export function Plans() {
   };
 
   const handleDeleteMeal = (mealId: string, mealName: string) => {
-  if (!activePlan) return;
+    if (!activePlan) return;
 
-  const confirmDelete = window.confirm(
-    `¿Está seguro de eliminar la comida "${mealName}"?`
-  );
+    const confirmDelete = window.confirm(
+      `¿Está seguro de eliminar la comida "${mealName}"?`
+    );
 
-  if (!confirmDelete) return;
+    if (!confirmDelete) return;
 
-  setPlans((prev) =>
-    prev.map((p) => {
-      if (p.id !== activePlan.id) return p;
+    setPlans((prev) =>
+      prev.map((p) => {
+        if (p.id !== activePlan.id) return p;
 
-      const updatedDays = p.days.map((dayObj) => {
-        if (dayObj.day !== selectedDay) return dayObj;
+        const updatedDays = p.days.map((dayObj) => {
+          if (dayObj.day !== selectedDay) return dayObj;
+
+          return {
+            ...dayObj,
+            meals: dayObj.meals.filter((m) => m.id !== mealId),
+          };
+        });
 
         return {
-          ...dayObj,
-          meals: dayObj.meals.filter((m) => m.id !== mealId),
+          ...p,
+          days: updatedDays,
+          updatedAt: new Date().toISOString(),
         };
-      });
+      })
+    );
 
-      return {
-        ...p,
-        days: updatedDays,
-        updatedAt: new Date().toISOString(),
-      };
-    })
-  );
-
-  showToast(`Comida "${mealName}" eliminada correctamente.`);
-};
+    showToast(`Comida "${mealName}" eliminada correctamente.`);
+  };
 
   const handleCloneDayToAll = () => {
     if (!activePlan) return;
@@ -234,11 +234,16 @@ export function Plans() {
           <select
             value={activePlanId}
             onChange={(e) => setActivePlanId(e.target.value)}
+            title="Seleccione un plan semanal"
             className="bg-surface border border-border rounded-2xl px-4 py-3 text-sm font-bold text-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 max-w-xs truncate"
           >
             {plans.map((p) => (
-              <option key={p.id} value={p.id}>
-                ≡ƒôü {p.title} ({p.patientName})
+              <option
+                key={p.id}
+                value={p.id}
+                title={`${p.title} - ${p.patientName}`}
+              >
+                🗓 {p.title} ({p.patientName})
               </option>
             ))}
           </select>
@@ -287,14 +292,12 @@ export function Plans() {
               </span>
               <button
                 onClick={handleToggleWeekends}
-                className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors focus:outline-none ${
-                  activePlan.includeWeekends ? 'bg-primary' : 'bg-gray-600'
-                }`}
+                className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors focus:outline-none ${activePlan.includeWeekends ? 'bg-primary' : 'bg-gray-600'
+                  }`}
               >
                 <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
-                    activePlan.includeWeekends ? 'translate-x-8' : 'translate-x-1'
-                  }`}
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${activePlan.includeWeekends ? 'translate-x-8' : 'translate-x-1'
+                    }`}
                 />
               </button>
             </div>
@@ -304,7 +307,7 @@ export function Plans() {
 
       {/* Weekly Structure Builder Section */}
       <div className="bg-surface rounded-3xl border border-border shadow-sm overflow-hidden">
-        
+
         {/* Days Navigation Tabs */}
         <div className="flex items-center overflow-x-auto no-scrollbar border-b border-border bg-surface-hover/50 p-2 gap-2">
           {visibleDays.map((day) => {
@@ -318,11 +321,10 @@ export function Plans() {
               <button
                 key={day}
                 onClick={() => setSelectedDay(day)}
-                className={`flex flex-col items-start px-6 py-3.5 rounded-2xl transition-all min-w-[130px] shrink-0 border ${
-                  isSelected
+                className={`flex flex-col items-start px-6 py-3.5 rounded-2xl transition-all min-w-[130px] shrink-0 border ${isSelected
                     ? 'bg-primary text-gray-900 border-primary shadow-md font-extrabold scale-[1.02]'
                     : 'bg-surface text-muted hover:text-foreground border-border hover:border-muted'
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-between w-full">
                   <span className="text-sm font-black tracking-tight">{day}</span>
@@ -368,24 +370,21 @@ export function Plans() {
             {currentDayData.meals.map((meal, index) => (
               <div
                 key={meal.id}
-                className={`flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-2xl border transition-all ${
-                  meal.isEnabled
+                className={`flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-2xl border transition-all ${meal.isEnabled
                     ? 'bg-surface border-border shadow-sm hover:border-primary/40'
                     : 'bg-surface-hover/40 border-border/60 opacity-55'
-                }`}
+                  }`}
               >
                 {/* Enable Switch & Meal Name */}
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => handleUpdateMeal(meal.id, { isEnabled: !meal.isEnabled })}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 focus:outline-none ${
-                      meal.isEnabled ? 'bg-emerald-500' : 'bg-gray-400 dark:bg-gray-700'
-                    }`}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 focus:outline-none ${meal.isEnabled ? 'bg-emerald-500' : 'bg-gray-400 dark:bg-gray-700'
+                      }`}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        meal.isEnabled ? 'translate-x-6' : 'translate-x-1'
-                      }`}
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${meal.isEnabled ? 'translate-x-6' : 'translate-x-1'
+                        }`}
                     />
                   </button>
 
@@ -414,13 +413,13 @@ export function Plans() {
                   <div className="flex items-center gap-2 bg-surface-hover px-3 py-2 rounded-xl border border-border">
                     <Clock size={15} className="text-muted shrink-0" />
                     <span className="text-xs font-bold text-muted">Horario:</span>
-               <input
-  type="time"
-  value={meal.suggestedTime}
-  disabled={!meal.isEnabled}
-  onChange={(e) => handleUpdateMeal(meal.id, { suggestedTime: e.target.value })}
-  className="w-24 text-xs font-extrabold text-foreground bg-transparent focus:outline-none"
-/>
+                    <input
+                      type="time"
+                      value={meal.suggestedTime}
+                      disabled={!meal.isEnabled}
+                      onChange={(e) => handleUpdateMeal(meal.id, { suggestedTime: e.target.value })}
+                      className="w-24 text-xs font-extrabold text-foreground bg-transparent focus:outline-none"
+                    />
                   </div>
 
                   {/* Target Calories Input */}
