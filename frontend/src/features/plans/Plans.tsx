@@ -100,19 +100,37 @@ export function Plans() {
   };
 
   const handleDeleteMeal = (mealId: string, mealName: string) => {
-    if (!activePlan) return;
-    setPlans((prev) =>
-      prev.map((p) => {
-        if (p.id !== activePlan.id) return p;
-        const updatedDays = p.days.map((dayObj) => {
-          if (dayObj.day !== selectedDay) return dayObj;
-          return { ...dayObj, meals: dayObj.meals.filter((m) => m.id !== mealId) };
-        });
-        return { ...p, days: updatedDays, updatedAt: new Date().toISOString() };
-      })
-    );
-    showToast(`Comida "${mealName}" eliminada.`);
-  };
+  if (!activePlan) return;
+
+  const confirmDelete = window.confirm(
+    `¿Está seguro de eliminar la comida "${mealName}"?`
+  );
+
+  if (!confirmDelete) return;
+
+  setPlans((prev) =>
+    prev.map((p) => {
+      if (p.id !== activePlan.id) return p;
+
+      const updatedDays = p.days.map((dayObj) => {
+        if (dayObj.day !== selectedDay) return dayObj;
+
+        return {
+          ...dayObj,
+          meals: dayObj.meals.filter((m) => m.id !== mealId),
+        };
+      });
+
+      return {
+        ...p,
+        days: updatedDays,
+        updatedAt: new Date().toISOString(),
+      };
+    })
+  );
+
+  showToast(`Comida "${mealName}" eliminada correctamente.`);
+};
 
   const handleCloneDayToAll = () => {
     if (!activePlan) return;
