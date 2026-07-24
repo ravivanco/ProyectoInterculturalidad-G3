@@ -470,6 +470,26 @@ export function Plans() {
               </option>
             ))}
           </select>
+
+          <button
+            onClick={handleRecommendMenus}
+            disabled={generatingRecommendations}
+            className="bg-amber-500 hover:bg-amber-600 text-white font-extrabold px-5 py-3 rounded-2xl text-sm shadow-md transition-all flex items-center gap-2 shrink-0 active:scale-95 disabled:opacity-50"
+            title="Genera menús sugeridos automáticamente para todas las tomas de este plan"
+          >
+            <Sparkles size={18} />
+            <span>{generatingRecommendations ? 'Recomendando...' : 'Recomendación Automática'}</span>
+          </button>
+
+          <button
+            onClick={handleClearRecommendations}
+            className="bg-surface hover:bg-surface-hover text-muted hover:text-rose-500 border border-border hover:border-rose-200 font-bold px-4 py-3 rounded-2xl text-sm shadow-sm transition-all flex items-center gap-2 shrink-0 active:scale-95"
+            title="Elimina todas las recomendaciones automáticas de este plan para empezar de cero"
+          >
+            <Trash2 size={16} />
+            <span>Limpiar Recomendaciones</span>
+          </button>
+
           <button
             onClick={() => setShowCreateModal(true)}
             className="bg-primary hover:bg-primary-hover text-gray-900 font-extrabold px-5 py-3 rounded-2xl text-sm shadow-md transition-all flex items-center gap-2 shrink-0 active:scale-95"
