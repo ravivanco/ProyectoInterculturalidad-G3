@@ -98,7 +98,12 @@ export function RegisterScreen({ navigation }: Props) {
           </View>
           <View style={styles.group}>
             <Text style={styles.label}>Fecha de nacimiento</Text>
-            <Pressable onPress={() => setShowDatePicker(true)} style={styles.dateButton}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Seleccionar fecha de nacimiento"
+              onPress={() => setShowDatePicker(true)}
+              style={styles.dateButton}
+            >
               <Text style={form.fecha_nacimiento ? styles.dateText : styles.datePlaceholder}>{form.fecha_nacimiento || 'Seleccionar fecha'}</Text>
             </Pressable>
             {errors.fecha_nacimiento ? <Text style={styles.error}>{errors.fecha_nacimiento}</Text> : null}
