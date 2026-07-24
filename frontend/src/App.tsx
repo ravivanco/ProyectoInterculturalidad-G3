@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Login } from './features/auth';
 import { Dashboard } from './features/dashboard';
 import { Patients, PatientDetails } from './features/patients';
-import { Foods } from './features/foods';
+import { Foods } from './features';
 import { Plans } from './features/plans';
 import Layout from './components/Layout';
 
