@@ -1,4 +1,4 @@
-import { api } from '../../../lib/axios';
+import { api } from '../../lib/axios';
 import type { Food, CreateFoodInput } from '../types';
 import { INITIAL_FOODS } from './mockFoods';
 
