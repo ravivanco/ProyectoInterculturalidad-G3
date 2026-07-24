@@ -4,4 +4,5 @@ export type RootStackParamList = {
   Onboarding: undefined;
   Home: undefined;
   WeeklyMenu: undefined;
+  MealDetail: { dayId: string; mealId: string };
 };
