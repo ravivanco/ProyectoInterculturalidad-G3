@@ -40,8 +40,8 @@ export function ExerciseSelectorModal({
 
   useEffect(() => {
     if (isOpen) {
-      exerciseApi.getExercises().then((list) => {
-        setExercises(list.filter((e) => e.isActive));
+      exerciseApi.getExercises().then((list: ExerciseItem[]) => {
+        setExercises(list.filter((e: ExerciseItem) => e.isActive));
       });
       setDayOfWeek(defaultDay);
       setSelectedExercise(null);
