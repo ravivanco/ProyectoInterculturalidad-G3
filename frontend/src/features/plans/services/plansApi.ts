@@ -63,6 +63,30 @@ export const plansApi = {
       return false;
     }
   },
+
+  recommendPlanMenus: async (planId: string, plan: WeeklyPlan, catalog: any[]): Promise<WeeklyPlan | null> => {
+    const { recommendMenusForPlan } = await import('./mockPlans');
+    const recommended = recommendMenusForPlan(plan, catalog);
+    try {
+      await api.put(endpoints.nutritionPlans.weeklyStructure(planId), {
+        weeklyStructure: recommended.days,
+      });
+      return recommended;
+    } catch {
+      const saved = localStorage.getItem('dkfitt_plans');
+      if (saved) {
+        try {
+          const plans = JSON.parse(saved);
+          const idx = plans.findIndex((p: any) => p.id === planId);
+          if (idx !== -1) {
+            plans[idx] = recommended;
+            localStorage.setItem('dkfitt_plans', JSON.stringify(plans));
+          }
+        } catch {}
+      }
+      return recommended;
+    }
+  },
 };
 
 function getLocalOrInitial(): WeeklyPlan[] {
