@@ -3,4 +3,5 @@ export type RootStackParamList = {
   Register: undefined;
   Onboarding: undefined;
   Home: undefined;
+  WeeklyMenu: undefined;
 };
