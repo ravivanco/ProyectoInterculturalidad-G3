@@ -5,9 +5,10 @@ import { INITIAL_PLANS, createDefaultWeekStructure, DISH_CATALOG } from './servi
 import { WeeklyGrid, MenuSelectorModal, ExerciseSelectorModal, WeeklyExerciseSchedule, MobileExerciseSyncModal } from './components';
 import { assignedExerciseApi, type AssignedExerciseItem, type CreateAssignedExerciseInput } from './services/assignedExerciseApi';
 import { plansApi } from './services/plansApi';
-import { foodApi } from '../foods/services/foodApi';
+import { foodApi } from '../services/foodApi';
 import { patientsAPI } from '../patients/services/patientsApi';
 import type { Patient } from '../../shared/types';
+import type { Food } from '../types';
 
 export function Plans() {
   const [plans, setPlans] = useState<WeeklyPlan[]>([]);
@@ -23,6 +24,7 @@ export function Plans() {
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
   const [exerciseSelectorDefaultDay, setExerciseSelectorDefaultDay] = useState<DayOfWeek>('Lunes');
   const [showMobilePreviewModal, setShowMobilePreviewModal] = useState(false);
+  const [generatingRecommendations, setGeneratingRecommendations] = useState(false);
 
   // Estado para crear nuevo plan
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -56,8 +58,8 @@ export function Plans() {
         const foods = await foodApi.getFoods();
         if (foods.length > 0) {
           const mapped: DishTemplate[] = foods
-            .filter((f) => f.isActive)
-            .map((f) => ({
+            .filter((f: Food) => f.isActive)
+            .map((f: Food) => ({
               id: f.id,
               name: f.name,
               category: mapFoodCategoryToDishCategory(f.category),
@@ -225,6 +227,54 @@ export function Plans() {
     );
 
     showToast(`Comida "${mealName}" eliminada correctamente.`);
+  };
+
+  const handleRecommendMenus = async () => {
+    if (!activePlan) return;
+    const confirmGen = confirm(
+      '¿Estás seguro de que deseas generar recomendaciones automáticas de menús para toda la semana? Esto asignará platos recomendados a todas las tomas activas de este plan.'
+    );
+    if (!confirmGen) return;
+
+    setGeneratingRecommendations(true);
+    try {
+      const updated = await plansApi.recommendPlanMenus(activePlan.id, activePlan, dishCatalog);
+      if (updated) {
+        setPlans((prev) => prev.map((p) => (p.id === activePlan.id ? updated : p)));
+        showToast('✨ ¡Recomendaciones de menús autogeneradas con éxito!');
+      } else {
+        showToast('❌ No se pudieron generar las recomendaciones.');
+      }
+    } catch {
+      showToast('❌ Error al comunicar con el servicio de recomendación.');
+    } finally {
+      setGeneratingRecommendations(false);
+    }
+  };
+
+  const handleClearRecommendations = () => {
+    if (!activePlan) return;
+    const confirmClear = confirm(
+      '¿Estás seguro de que deseas eliminar todas las recomendaciones automáticas de este plan?'
+    );
+    if (!confirmClear) return;
+
+    setPlans((prev) =>
+      prev.map((p) => {
+        if (p.id !== activePlan.id) return p;
+        const updatedDays = p.days.map((dayObj) => {
+          const updatedMeals = dayObj.meals.map((meal) => {
+            return {
+              ...meal,
+              assignedMenus: (meal.assignedMenus || []).filter((item) => !item.isRecommended),
+            };
+          });
+          return { ...dayObj, meals: updatedMeals };
+        });
+        return { ...p, days: updatedDays, updatedAt: new Date().toISOString() };
+      })
+    );
+    showToast('🧹 Recomendaciones automáticas eliminadas de la semana.');
   };
 
   const handleCloneDayToAll = () => {
@@ -420,7 +470,6 @@ export function Plans() {
               </option>
             ))}
           </select>
-
           <button
             onClick={() => setShowCreateModal(true)}
             className="bg-primary hover:bg-primary-hover text-gray-900 font-extrabold px-5 py-3 rounded-2xl text-sm shadow-md transition-all flex items-center gap-2 shrink-0 active:scale-95"
