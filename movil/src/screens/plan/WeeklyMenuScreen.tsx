@@ -13,6 +13,7 @@ export function WeeklyMenuScreen({ navigation }: NativeStackScreenProps<RootStac
   const [plan, setPlan] = useState<WeeklyNutritionPlan>();
   const [selectedDayId, setSelectedDayId] = useState('monday');
   const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
     nutritionPlanService.getActiveWeeklyMenu()
@@ -27,6 +28,17 @@ export function WeeklyMenuScreen({ navigation }: NativeStackScreenProps<RootStac
     () => plan?.days.find((day) => day.id === selectedDayId) ?? plan?.days[0],
     [plan?.days, selectedDayId],
   );
+
+  const generateMenu = async () => {
+    setGenerating(true);
+    try {
+      const generatedPlan = await nutritionPlanService.generateWeeklyMenu();
+      setPlan(generatedPlan);
+      setSelectedDayId(generatedPlan.days[0]?.id ?? selectedDayId);
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -46,6 +58,13 @@ export function WeeklyMenuScreen({ navigation }: NativeStackScreenProps<RootStac
           <View style={styles.summary}>
             <Text style={styles.summaryTitle}>{plan?.name}</Text>
             <Text style={styles.summaryText}>{plan?.weekLabel} · Meta {plan?.energyTarget} kcal/día</Text>
+            {plan?.generatedAt ? <Text style={styles.generatedText}>Generado automáticamente</Text> : undefined}
+          </View>
+
+          <View style={styles.recommendationCard}>
+            <Text style={styles.recommendationTitle}>Recomendación automática</Text>
+            <Text style={styles.recommendationText}>Genera un menú semanal según tus necesidades energéticas y preferencias.</Text>
+            <PrimaryButton loading={generating} onPress={generateMenu} title={generating ? 'Generando...' : 'Generar menús'} />
           </View>
 
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.daySelector}>
@@ -132,6 +151,7 @@ const styles = StyleSheet.create({
   daySelector: { marginHorizontal: -4 },
   dayTitle: { color: colors.text, fontSize: 24, fontWeight: '900' },
   empty: { color: colors.muted, textAlign: 'center' },
+  generatedText: { color: colors.primarySoft, fontSize: 12, fontWeight: '900', marginTop: 10, textTransform: 'uppercase' },
   header: { gap: 8 },
   kicker: { color: colors.primary, fontSize: 13, fontWeight: '900', letterSpacing: 1, textTransform: 'uppercase' },
   loadingCard: { alignItems: 'center', backgroundColor: colors.surface, borderRadius: 22, gap: 12, padding: 28 },
@@ -145,6 +165,9 @@ const styles = StyleSheet.create({
   mealSlot: { color: colors.primaryDark, fontSize: 12, fontWeight: '900', letterSpacing: 0.4, textTransform: 'uppercase' },
   mealTitle: { color: colors.text, fontSize: 16, fontWeight: '800' },
   mealAction: { color: colors.primaryDark, fontSize: 12, fontWeight: '900' },
+  recommendationCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 22, borderWidth: 1, gap: 12, marginTop: 16, padding: 18 },
+  recommendationText: { color: colors.muted, fontSize: 14, lineHeight: 20 },
+  recommendationTitle: { color: colors.text, fontSize: 18, fontWeight: '900' },
   subtitle: { color: colors.muted, fontSize: 16, lineHeight: 22 },
   summary: { backgroundColor: colors.primaryDark, borderRadius: 20, padding: 18 },
   summaryText: { color: colors.primarySoft, fontSize: 14, marginTop: 5 },

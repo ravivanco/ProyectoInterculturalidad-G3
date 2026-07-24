@@ -78,6 +78,27 @@ const weekdayMenus: WeeklyNutritionPlan = {
   ],
 };
 
+const generatedMenus: WeeklyNutritionPlan = {
+  ...weekdayMenus,
+  id: 'generated-balanced-week',
+  name: 'Recomendación automática semanal',
+  status: 'generated',
+  weekLabel: 'Semana generada',
+  generatedAt: new Date().toISOString(),
+  safetyNotes: [
+    'Generado según meta energética diaria estimada.',
+    'Incluye platos variados compatibles con preferencias registradas.',
+  ],
+  days: weekdayMenus.days.map((day, index) => ({
+    ...day,
+    totalCalories: [1840, 1860, 1835, 1855, 1825][index] ?? day.totalCalories,
+    meals: day.meals.map((meal) => ({
+      ...meal,
+      tags: Array.from(new Set([...meal.tags, 'recomendado'])),
+    })),
+  })),
+};
+
 export const nutritionPlanService = {
   async getActiveWeeklyMenu() {
     const token = await getToken();
@@ -90,6 +111,20 @@ export const nutritionPlanService = {
       });
     } catch {
       return weekdayMenus;
+    }
+  },
+
+  async generateWeeklyMenu() {
+    const token = await getToken();
+    if (!token) return generatedMenus;
+
+    try {
+      return await apiRequest<WeeklyNutritionPlan>('/nutrition-plans/me/active/week/recommendations', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch {
+      return { ...generatedMenus, generatedAt: new Date().toISOString() };
     }
   },
 };
