@@ -177,9 +177,16 @@ export const WeeklyGrid: React.FC<WeeklyGridProps> = ({
                                 className="group relative bg-surface border border-border hover:border-primary/50 rounded-xl p-2.5 shadow-xs transition-all"
                               >
                                 <div className="flex items-start justify-between gap-1">
-                                  <span className="text-xs font-bold text-foreground leading-snug">
-                                    {item.name}
-                                  </span>
+                                  <div className="flex flex-col gap-0.5">
+                                    <span className="text-xs font-bold text-foreground leading-snug">
+                                      {item.name}
+                                    </span>
+                                    {item.isRecommended && (
+                                      <span className="inline-flex items-center text-[9px] font-black text-amber-600 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded-md self-start uppercase tracking-wider">
+                                        ✨ Recomendado
+                                      </span>
+                                    )}
+                                  </div>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
