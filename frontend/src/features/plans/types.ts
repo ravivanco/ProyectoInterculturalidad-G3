@@ -25,6 +25,7 @@ export interface AssignedMenu {
   fat: number;
   category?: DishCategory;
   notes?: string;
+  isRecommended?: boolean;
 }
 
 export interface MealConfig {

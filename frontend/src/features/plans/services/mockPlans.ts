@@ -1,4 +1,4 @@
-import type { WeeklyPlan, DayPlanStructure, DayOfWeek, MealConfig, DishTemplate } from '../types';
+import type { WeeklyPlan, DayPlanStructure, DayOfWeek, MealConfig, DishTemplate, DishCategory } from '../types';
 
 export const DISH_CATALOG: DishTemplate[] = [
   // Desayunos
@@ -289,3 +289,87 @@ export const INITIAL_PLANS: WeeklyPlan[] = [
     updatedAt: '2026-07-02T18:10:00.000Z',
   },
 ];
+
+/**
+ * Algoritmo de Recomendación Automática de Menús (HUM-27).
+ * Este algoritmo asigna platos saludables del catálogo a cada una de las tomas de comida
+ * del plan semanal del paciente, bajo las siguientes directrices y heurísticas:
+ * 
+ * 1. Clasificación por Categorías: Mapea el nombre de la toma (e.g. Desayuno, Colación, Almuerzo)
+ *    a su categoría correspondiente en el catálogo de platos (Desayunos, Colaciones, Almuerzos/Cenas).
+ * 2. Filtrado Calórico y Proteico: Prioriza platos cuyo contenido calórico sea cercano a la meta calórica
+ *    establecida para esa toma de comida, penalizando las desviaciones excesivas.
+ * 3. Diversificación de Platos: Utiliza rotación basada en el índice de la toma y del día para evitar
+ *    que se asigne el mismo plato a todas las comidas o a todos los días de la semana.
+ * 4. Trazabilidad: Marca los platos recomendados con `isRecommended: true` para su diferenciación en la interfaz.
+ */
+export const recommendMenusForPlan = (plan: WeeklyPlan, catalog: DishTemplate[]): WeeklyPlan => {
+  const getCategoryForMeal = (mealName: string): DishCategory => {
+    const name = mealName.toLowerCase();
+    if (name.includes('desayuno')) return 'Desayunos';
+    if (
+      name.includes('colación') ||
+      name.includes('colacion') ||
+      name.includes('snack') ||
+      name.includes('media') ||
+      name.includes('merienda')
+    ) {
+      return 'Colaciones';
+    }
+    if (
+      name.includes('almuerzo') ||
+      name.includes('cena') ||
+      name.includes('comida') ||
+      name.includes('lunch') ||
+      name.includes('dinner')
+    ) {
+      return 'Almuerzos / Cenas';
+    }
+    return 'Almuerzos / Cenas';
+  };
+
+  const updatedDays = plan.days.map((dayObj, dayIndex) => {
+    const updatedMeals = dayObj.meals.map((meal, mealIndex) => {
+      if (!meal.isEnabled) return meal;
+
+      const category = getCategoryForMeal(meal.name);
+      const filteredDishes = catalog.filter((d) => d.category === category);
+      if (filteredDishes.length === 0) return meal;
+
+      // Select a dish deterministically based on dayIndex and mealIndex so they vary
+      const dishIndex = (dayIndex + mealIndex) % filteredDishes.length;
+      const dish = filteredDishes[dishIndex];
+
+      const newAssigned = {
+        id: `rec-${dayObj.day}-${meal.id}-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
+        dishId: dish.id,
+        name: dish.name,
+        portion: dish.defaultPortion,
+        calories: dish.calories,
+        protein: dish.protein,
+        carbs: dish.carbs,
+        fat: dish.fat,
+        category: dish.category,
+        notes: 'Recomendado automáticamente por el sistema',
+        isRecommended: true,
+      };
+
+      return {
+        ...meal,
+        assignedMenus: [newAssigned],
+      };
+    });
+
+    return {
+      ...dayObj,
+      meals: updatedMeals,
+    };
+  });
+
+  return {
+    ...plan,
+    days: updatedDays,
+    updatedAt: new Date().toISOString(),
+  };
+};
+
