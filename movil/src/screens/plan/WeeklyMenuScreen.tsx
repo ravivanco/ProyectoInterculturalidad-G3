@@ -67,6 +67,13 @@ export function WeeklyMenuScreen({ navigation }: NativeStackScreenProps<RootStac
             <PrimaryButton loading={generating} onPress={generateMenu} title={generating ? 'Generando...' : 'Generar menús'} />
           </View>
 
+          <View style={styles.safetyCard}>
+            <Text style={styles.safetyTitle}>Menús seguros para tu perfil</Text>
+            {(plan?.safetyNotes ?? ['Sin alimentos restringidos detectados.']).map((note) => (
+              <Text key={note} style={styles.safetyText}>✓ {note}</Text>
+            ))}
+          </View>
+
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.daySelector}>
             {plan?.days.map((day) => (
               <DayPill day={day} key={day.id} onPress={() => setSelectedDayId(day.id)} selected={selectedDay?.id === day.id} />
@@ -121,6 +128,7 @@ function MealSlotCard({ slot, title, calories, tags, onPress }: MealSlotCardProp
         <Text style={styles.mealTitle}>{title}</Text>
         <Text style={styles.mealMeta}>{calories ? `${calories} kcal` : 'Sin calorías registradas'}{tags.length ? ` · ${tags.join(', ')}` : ''}</Text>
       </View>
+      {tags.includes('seguro') || tags.includes('recomendado') ? <Text style={styles.safeBadge}>Seguro</Text> : undefined}
       {onPress ? <Text style={styles.mealAction}>Ver receta</Text> : undefined}
     </Pressable>
   );
@@ -168,6 +176,10 @@ const styles = StyleSheet.create({
   recommendationCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 22, borderWidth: 1, gap: 12, marginTop: 16, padding: 18 },
   recommendationText: { color: colors.muted, fontSize: 14, lineHeight: 20 },
   recommendationTitle: { color: colors.text, fontSize: 18, fontWeight: '900' },
+  safeBadge: { backgroundColor: colors.surface, borderRadius: 999, color: colors.primaryDark, fontSize: 11, fontWeight: '900', overflow: 'hidden', paddingHorizontal: 8, paddingVertical: 5 },
+  safetyCard: { backgroundColor: colors.primarySoft, borderRadius: 20, gap: 8, marginTop: 16, padding: 16 },
+  safetyText: { color: colors.primaryDark, fontSize: 14, lineHeight: 20 },
+  safetyTitle: { color: colors.text, fontSize: 17, fontWeight: '900' },
   subtitle: { color: colors.muted, fontSize: 16, lineHeight: 22 },
   summary: { backgroundColor: colors.primaryDark, borderRadius: 20, padding: 18 },
   summaryText: { color: colors.primarySoft, fontSize: 14, marginTop: 5 },
