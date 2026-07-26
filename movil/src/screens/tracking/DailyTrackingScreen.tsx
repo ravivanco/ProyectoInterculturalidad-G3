@@ -29,6 +29,10 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
       .reduce((total, food) => total + food.calories, 0) ?? 0;
     return meals + additional;
   }, [summary?.additionalFoods, summary?.plannedMeals]);
+  const completedMeals = useMemo(
+    () => visibleMeals.filter((meal) => meal.date === todayIso && meal.status === 'completed'),
+    [visibleMeals],
+  );
   const remainingCalories = (summary?.calorieGoal ?? 0) - consumedCalories;
   const progress = useMemo(() => {
     const records = summary?.weightHistory ?? [];
@@ -83,6 +87,7 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
         <Text style={styles.infoTitle}>Calorías consumidas hoy</Text>
         <Text style={styles.calorieValue}>{consumedCalories} kcal</Text>
         <Text style={styles.infoHint}>Se actualiza automáticamente según comidas marcadas y alimentos confirmados.</Text>
+        <Text style={styles.duplicateHint}>{completedMeals.length} comidas completadas · sin duplicar calorías</Text>
       </View>
 
       <View style={[styles.balanceCard, remainingCalories < 0 ? styles.balanceCardDanger : undefined]}>
@@ -190,6 +195,7 @@ const styles = StyleSheet.create({
   balanceRow: { flexDirection: 'row', justifyContent: 'space-between' },
   balanceValue: { color: colors.text, fontSize: 22, fontWeight: '900', marginTop: 4 },
   container: { backgroundColor: colors.background, flexGrow: 1, gap: 20, padding: 24, paddingTop: 56 },
+  duplicateHint: { color: colors.primaryDark, fontSize: 13, fontWeight: '900', marginTop: 4 },
   header: { gap: 8 },
   infoCard: { backgroundColor: colors.primarySoft, borderRadius: 20, gap: 6, padding: 16 },
   infoHint: { color: colors.primaryDark, fontSize: 13, lineHeight: 19 },
