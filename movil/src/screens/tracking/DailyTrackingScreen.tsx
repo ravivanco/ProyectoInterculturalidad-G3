@@ -20,6 +20,18 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
   }, []);
 
   const visibleMeals = useMemo(() => summary?.plannedMeals ?? [], [summary?.plannedMeals]);
+  const progress = useMemo(() => {
+    const records = summary?.weightHistory ?? [];
+    const last = records.at(-1);
+    const previous = records.at(-2);
+    return {
+      records,
+      last,
+      variation: last && previous ? Number((last.weightKg - previous.weightKg).toFixed(1)) : 0,
+      min: Math.min(...records.map((record) => record.weightKg), 0),
+      max: Math.max(...records.map((record) => record.weightKg), 1),
+    };
+  }, [summary?.weightHistory]);
 
   const changeMealStatus = async (meal: PlannedMealTracking, status: MealCompletionStatus) => {
     if (meal.date !== todayIso) {
@@ -80,6 +92,28 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
         </View>
       </View>
 
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Progreso y estadísticas</Text>
+        <View style={styles.progressCard}>
+          <Text style={styles.progressValue}>{progress.last ? `${progress.last.weightKg} kg` : 'Sin datos'}</Text>
+          <Text style={[styles.progressVariation, progress.variation > 0 ? styles.progressUp : styles.progressDown]}>
+            Variación: {progress.variation > 0 ? '+' : ''}{progress.variation} kg
+          </Text>
+          <View style={styles.chart}>
+            {progress.records.map((record) => {
+              const range = Math.max(progress.max - progress.min, 1);
+              const height = 36 + ((record.weightKg - progress.min) / range) * 70;
+              return (
+                <View key={record.id} style={styles.chartItem}>
+                  <View style={[styles.chartBar, { height }]} />
+                  <Text style={styles.chartLabel}>{record.date.slice(5)}</Text>
+                </View>
+              );
+            })}
+          </View>
+        </View>
+      </View>
+
       <PrimaryButton onPress={() => navigation.goBack()} title="Volver al inicio" />
     </ScrollView>
   );
@@ -127,6 +161,10 @@ const styles = StyleSheet.create({
   infoText: { color: colors.text, fontSize: 17, fontWeight: '900' },
   infoTitle: { color: colors.primaryDark, fontSize: 12, fontWeight: '900', textTransform: 'uppercase' },
   input: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 14, borderWidth: 1, color: colors.text, fontSize: 18, fontWeight: '800', paddingHorizontal: 14, paddingVertical: 12 },
+  chart: { alignItems: 'flex-end', flexDirection: 'row', gap: 10, minHeight: 130 },
+  chartBar: { backgroundColor: colors.primary, borderRadius: 999, width: 28 },
+  chartItem: { alignItems: 'center', flex: 1, gap: 8, justifyContent: 'flex-end' },
+  chartLabel: { color: colors.muted, fontSize: 11, fontWeight: '800' },
   kicker: { color: colors.primary, fontSize: 13, fontWeight: '900', letterSpacing: 1, textTransform: 'uppercase' },
   mealCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 18, borderWidth: 1, padding: 16 },
   mealCardDisabled: { opacity: 0.65 },
@@ -136,6 +174,11 @@ const styles = StyleSheet.create({
   mealSlot: { color: colors.primary, fontSize: 12, fontWeight: '900', textTransform: 'uppercase' },
   mealTitle: { color: colors.text, fontSize: 17, fontWeight: '900', marginTop: 8 },
   secondaryAction: { backgroundColor: colors.primaryDark },
+  progressCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 18, borderWidth: 1, gap: 12, padding: 16 },
+  progressDown: { color: colors.primaryDark },
+  progressUp: { color: colors.danger },
+  progressValue: { color: colors.text, fontSize: 28, fontWeight: '900' },
+  progressVariation: { fontSize: 14, fontWeight: '900' },
   section: { gap: 12 },
   sectionTitle: { color: colors.text, fontSize: 20, fontWeight: '900' },
   subtitle: { color: colors.muted, fontSize: 16, lineHeight: 22 },
