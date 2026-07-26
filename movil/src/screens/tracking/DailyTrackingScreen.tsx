@@ -44,6 +44,12 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
     () => visibleMeals.filter((meal) => meal.date === todayIso && meal.status === 'completed'),
     [visibleMeals],
   );
+  const confirmedAdditionalCalories = useMemo(
+    () => summary?.additionalFoods
+      .filter((food) => food.date === todayIso && food.status === 'confirmed')
+      .reduce((total, food) => total + food.calories, 0) ?? 0,
+    [summary?.additionalFoods],
+  );
   const remainingCalories = (summary?.calorieGoal ?? 0) - consumedCalories;
   const progress = useMemo(() => {
     const records = summary?.weightHistory ?? [];
@@ -150,6 +156,7 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
         <Text style={styles.calorieValue}>{consumedCalories} kcal</Text>
         <Text style={styles.infoHint}>Se actualiza automáticamente según comidas marcadas y alimentos confirmados.</Text>
         <Text style={styles.duplicateHint}>{completedMeals.length} comidas completadas · sin duplicar calorías</Text>
+        <Text style={styles.duplicateHint}>Adicional confirmado: +{confirmedAdditionalCalories} kcal</Text>
       </View>
 
       <View style={[styles.balanceCard, remainingCalories < 0 ? styles.balanceCardDanger : undefined]}>
@@ -242,6 +249,7 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
           <View key={food.id} style={styles.additionalFoodCard}>
             <Text style={styles.mealTitle}>{food.name}</Text>
             <Text style={styles.mealMeta}>{food.calories} kcal · {food.date} · {food.status}{food.imageUri ? ' · con imagen' : ''}</Text>
+            {food.status === 'confirmed' ? <Text style={styles.duplicateHint}>Sumado al total diario</Text> : undefined}
           </View>
         ))}
       </View>
