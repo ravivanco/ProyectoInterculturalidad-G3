@@ -8,6 +8,7 @@ import { RegisterScreen } from '../screens/auth/RegisterScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { MealDetailScreen } from '../screens/plan/MealDetailScreen';
 import { WeeklyMenuScreen } from '../screens/plan/WeeklyMenuScreen';
+import { DailyTrackingScreen } from '../screens/tracking/DailyTrackingScreen';
 import { getProfileCompleted, getToken } from '../services/tokenStorage';
 import { colors } from '../theme/colors';
 import type { RootStackParamList } from './types';
@@ -37,6 +38,7 @@ export function RootNavigator() {
       <Stack.Screen component={WeeklyMenuScreen} name="WeeklyMenu" />
       <Stack.Screen component={MealDetailScreen} name="MealDetail" />
       <Stack.Screen component={ExercisesScreen} name="Exercises" />
+      <Stack.Screen component={DailyTrackingScreen} name="DailyTracking" />
     </Stack.Navigator>
   );
 }

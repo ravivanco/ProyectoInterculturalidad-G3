@@ -6,4 +6,5 @@ export type RootStackParamList = {
   WeeklyMenu: undefined;
   MealDetail: { dayId: string; mealId: string };
   Exercises: undefined;
+  DailyTracking: undefined;
 };
