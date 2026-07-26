@@ -20,6 +20,15 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
   }, []);
 
   const visibleMeals = useMemo(() => summary?.plannedMeals ?? [], [summary?.plannedMeals]);
+  const consumedCalories = useMemo(() => {
+    const meals = summary?.plannedMeals
+      .filter((meal) => meal.date === todayIso && meal.status === 'completed')
+      .reduce((total, meal) => total + meal.calories, 0) ?? 0;
+    const additional = summary?.additionalFoods
+      .filter((food) => food.date === todayIso && food.status === 'confirmed')
+      .reduce((total, food) => total + food.calories, 0) ?? 0;
+    return meals + additional;
+  }, [summary?.additionalFoods, summary?.plannedMeals]);
   const progress = useMemo(() => {
     const records = summary?.weightHistory ?? [];
     const last = records.at(-1);
@@ -67,6 +76,12 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
         <Text style={styles.infoTitle}>Fecha actual</Text>
         <Text style={styles.infoText}>{todayIso}</Text>
         <Text style={styles.infoHint}>Los días futuros quedan bloqueados para mantener un seguimiento real.</Text>
+      </View>
+
+      <View style={styles.calorieCard}>
+        <Text style={styles.infoTitle}>Calorías consumidas hoy</Text>
+        <Text style={styles.calorieValue}>{consumedCalories} kcal</Text>
+        <Text style={styles.infoHint}>Se actualiza automáticamente según comidas marcadas y alimentos confirmados.</Text>
       </View>
 
       <View style={styles.section}>
@@ -165,6 +180,8 @@ const styles = StyleSheet.create({
   chartBar: { backgroundColor: colors.primary, borderRadius: 999, width: 28 },
   chartItem: { alignItems: 'center', flex: 1, gap: 8, justifyContent: 'flex-end' },
   chartLabel: { color: colors.muted, fontSize: 11, fontWeight: '800' },
+  calorieCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 22, borderWidth: 1, gap: 8, padding: 18 },
+  calorieValue: { color: colors.primary, fontSize: 34, fontWeight: '900' },
   kicker: { color: colors.primary, fontSize: 13, fontWeight: '900', letterSpacing: 1, textTransform: 'uppercase' },
   mealCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 18, borderWidth: 1, padding: 16 },
   mealCardDisabled: { opacity: 0.65 },
