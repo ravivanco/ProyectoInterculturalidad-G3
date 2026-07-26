@@ -24,6 +24,7 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
   const [additionalName, setAdditionalName] = useState('');
   const [additionalCalories, setAdditionalCalories] = useState('');
   const [additionalImageUri, setAdditionalImageUri] = useState<string>();
+  const [estimatedFood, setEstimatedFood] = useState<{ calories: number; protein: number; carbs: number; fat: number }>();
 
   useEffect(() => {
     trackingService.getDailySummary().then(setSummary);
@@ -90,10 +91,18 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
       setAdditionalName('');
       setAdditionalCalories('');
       setAdditionalImageUri(undefined);
+      setEstimatedFood(undefined);
       Alert.alert('Alimento registrado', 'El alimento adicional fue asociado al día actual.');
     } catch (error) {
       Alert.alert('No se pudo registrar', error instanceof Error ? error.message : 'Revisa los datos ingresados.');
     }
+  };
+
+  const estimateAdditionalFood = async () => {
+    const estimate = await trackingService.estimateAdditionalFood({ name: additionalName, imageUri: additionalImageUri });
+    setAdditionalName(estimate.name);
+    setAdditionalCalories(String(estimate.calories));
+    setEstimatedFood(estimate);
   };
 
   const pickImage = async (source: 'camera' | 'gallery') => {
@@ -200,6 +209,14 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
             style={styles.input}
             value={additionalCalories}
           />
+          <PrimaryButton disabled={!additionalName.trim() && !additionalImageUri} onPress={estimateAdditionalFood} title="Estimar calorías" />
+          {estimatedFood ? (
+            <View style={styles.estimateCard}>
+              <Text style={styles.infoTitle}>Resultado estimado</Text>
+              <Text style={styles.calorieValue}>{estimatedFood.calories} kcal</Text>
+              <Text style={styles.infoHint}>Proteína {estimatedFood.protein} g · Carbohidratos {estimatedFood.carbs} g · Grasa {estimatedFood.fat} g</Text>
+            </View>
+          ) : undefined}
           <PrimaryButton disabled={!additionalName.trim() || !additionalCalories.trim()} onPress={addAdditionalFood} title="Registrar alimento" />
         </View>
         {(summary?.additionalFoods ?? []).map((food) => (
@@ -283,6 +300,7 @@ const styles = StyleSheet.create({
   balanceValue: { color: colors.text, fontSize: 22, fontWeight: '900', marginTop: 4 },
   container: { backgroundColor: colors.background, flexGrow: 1, gap: 20, padding: 24, paddingTop: 56 },
   duplicateHint: { color: colors.primaryDark, fontSize: 13, fontWeight: '900', marginTop: 4 },
+  estimateCard: { backgroundColor: colors.primarySoft, borderRadius: 16, gap: 6, padding: 14 },
   header: { gap: 8 },
   infoCard: { backgroundColor: colors.primarySoft, borderRadius: 20, gap: 6, padding: 16 },
   infoHint: { color: colors.primaryDark, fontSize: 13, lineHeight: 19 },
