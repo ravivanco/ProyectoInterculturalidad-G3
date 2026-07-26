@@ -51,6 +51,7 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
     [summary?.additionalFoods],
   );
   const remainingCalories = (summary?.calorieGoal ?? 0) - consumedCalories;
+  const calorieProgress = summary?.calorieGoal ? Math.min(consumedCalories / summary.calorieGoal, 1) : 0;
   const progress = useMemo(() => {
     const records = summary?.weightHistory ?? [];
     const last = records.at(-1);
@@ -170,6 +171,12 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
             <Text style={[styles.balanceValue, remainingCalories < 0 ? styles.balanceDangerText : undefined]}>{remainingCalories} kcal</Text>
           </View>
         </View>
+        <View style={styles.remainingTrack}>
+          <View style={[styles.remainingFill, remainingCalories < 0 ? styles.remainingFillDanger : undefined, { width: `${calorieProgress * 100}%` }]} />
+        </View>
+        <Text style={[styles.remainingLabel, remainingCalories < 0 ? styles.balanceDangerText : undefined]}>
+          {remainingCalories < 0 ? `Exceso de ${Math.abs(remainingCalories)} kcal` : `${remainingCalories} kcal disponibles`}
+        </Text>
         <Text style={styles.infoHint}>{remainingCalories < 0 ? 'Superaste tu objetivo diario. Revisa tus registros adicionales.' : 'Aún tienes calorías disponibles para el día.'}</Text>
       </View>
 
@@ -361,6 +368,10 @@ const styles = StyleSheet.create({
   progressUp: { color: colors.danger },
   progressValue: { color: colors.text, fontSize: 28, fontWeight: '900' },
   progressVariation: { fontSize: 14, fontWeight: '900' },
+  remainingFill: { backgroundColor: colors.primary, borderRadius: 999, height: '100%' },
+  remainingFillDanger: { backgroundColor: colors.danger },
+  remainingLabel: { color: colors.primaryDark, fontSize: 14, fontWeight: '900' },
+  remainingTrack: { backgroundColor: colors.surface, borderRadius: 999, height: 12, overflow: 'hidden' },
   section: { gap: 12 },
   sectionTitle: { color: colors.text, fontSize: 20, fontWeight: '900' },
   statusBadge: { borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5 },
