@@ -64,7 +64,7 @@ export const trackingService = {
     return cloneSummary();
   },
 
-  async addAdditionalFood(payload: { name: string; calories: number }) {
+  async addAdditionalFood(payload: { name: string; calories: number; imageUri?: string }) {
     const name = payload.name.trim();
     if (!name) throw new Error('Ingresa el nombre del alimento.');
     if (!Number.isFinite(payload.calories) || payload.calories <= 0) throw new Error('Ingresa calorías válidas.');
@@ -77,6 +77,7 @@ export const trackingService = {
       protein: 0,
       carbs: 0,
       fat: 0,
+      imageUri: payload.imageUri,
       status: 'confirmed',
     });
 

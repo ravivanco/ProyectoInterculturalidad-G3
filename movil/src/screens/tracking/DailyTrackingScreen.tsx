@@ -1,4 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
@@ -22,6 +23,7 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
   const [weight, setWeight] = useState('');
   const [additionalName, setAdditionalName] = useState('');
   const [additionalCalories, setAdditionalCalories] = useState('');
+  const [additionalImageUri, setAdditionalImageUri] = useState<string>();
 
   useEffect(() => {
     trackingService.getDailySummary().then(setSummary);
@@ -82,13 +84,33 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
       const nextSummary = await trackingService.addAdditionalFood({
         name: additionalName,
         calories: Number(additionalCalories.replace(',', '.')),
+        imageUri: additionalImageUri,
       });
       setSummary(nextSummary);
       setAdditionalName('');
       setAdditionalCalories('');
+      setAdditionalImageUri(undefined);
       Alert.alert('Alimento registrado', 'El alimento adicional fue asociado al día actual.');
     } catch (error) {
       Alert.alert('No se pudo registrar', error instanceof Error ? error.message : 'Revisa los datos ingresados.');
+    }
+  };
+
+  const pickImage = async (source: 'camera' | 'gallery') => {
+    if (source === 'camera') {
+      const permission = await ImagePicker.requestCameraPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert('Permiso requerido', 'Necesitamos acceso a la cámara para tomar la foto.');
+        return;
+      }
+    }
+
+    const result = source === 'camera'
+      ? await ImagePicker.launchCameraAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.7 })
+      : await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.7 });
+
+    if (!result.canceled && result.assets?.[0]?.uri) {
+      setAdditionalImageUri(result.assets[0].uri);
     }
   };
 
@@ -154,6 +176,15 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
         <Text style={styles.sectionTitle}>Alimento adicional</Text>
         <View style={styles.weightCard}>
           <Text style={styles.infoHint}>Registra alimentos consumidos fuera del plan. Se asociarán a {todayIso}.</Text>
+          <View style={styles.actions}>
+            <Pressable onPress={() => pickImage('camera')} style={styles.imageButton}>
+              <Text style={styles.imageButtonText}>Tomar foto</Text>
+            </Pressable>
+            <Pressable onPress={() => pickImage('gallery')} style={styles.imageButton}>
+              <Text style={styles.imageButtonText}>Elegir galería</Text>
+            </Pressable>
+          </View>
+          {additionalImageUri ? <Text style={styles.infoHint}>Imagen seleccionada para el análisis.</Text> : undefined}
           <TextInput
             onChangeText={setAdditionalName}
             placeholder="Nombre del alimento"
@@ -174,7 +205,7 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
         {(summary?.additionalFoods ?? []).map((food) => (
           <View key={food.id} style={styles.additionalFoodCard}>
             <Text style={styles.mealTitle}>{food.name}</Text>
-            <Text style={styles.mealMeta}>{food.calories} kcal · {food.date} · {food.status}</Text>
+            <Text style={styles.mealMeta}>{food.calories} kcal · {food.date} · {food.status}{food.imageUri ? ' · con imagen' : ''}</Text>
           </View>
         ))}
       </View>
@@ -258,6 +289,8 @@ const styles = StyleSheet.create({
   infoText: { color: colors.text, fontSize: 17, fontWeight: '900' },
   infoTitle: { color: colors.primaryDark, fontSize: 12, fontWeight: '900', textTransform: 'uppercase' },
   input: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 14, borderWidth: 1, color: colors.text, fontSize: 18, fontWeight: '800', paddingHorizontal: 14, paddingVertical: 12 },
+  imageButton: { alignItems: 'center', backgroundColor: colors.primarySoft, borderRadius: 12, flex: 1, paddingVertical: 11 },
+  imageButtonText: { color: colors.primaryDark, fontWeight: '900' },
   chart: { alignItems: 'flex-end', flexDirection: 'row', gap: 10, minHeight: 130 },
   chartBar: { backgroundColor: colors.primary, borderRadius: 999, width: 28 },
   chartItem: { alignItems: 'center', flex: 1, gap: 8, justifyContent: 'flex-end' },
