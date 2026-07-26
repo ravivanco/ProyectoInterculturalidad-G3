@@ -25,6 +25,10 @@ export function ExercisesScreen({ navigation }: NativeStackScreenProps<RootStack
     () => category === 'Todas' ? exercises : exercises.filter((exercise) => exercise.category === category),
     [category, exercises],
   );
+  const recommendedExercises = useMemo(
+    () => exercises.filter((exercise) => exercise.recommended),
+    [exercises],
+  );
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -58,8 +62,30 @@ export function ExercisesScreen({ navigation }: NativeStackScreenProps<RootStack
         </View>
       )}
 
+      {!loading && recommendedExercises.length ? (
+        <View style={styles.recommendedSection}>
+          <Text style={styles.sectionTitle}>Recomendados para tu perfil</Text>
+          <Text style={styles.sectionText}>Rutinas sugeridas según tu actividad física, objetivo y condiciones registradas.</Text>
+          {recommendedExercises.map((exercise) => <RecommendedCard exercise={exercise} key={exercise.id} />)}
+        </View>
+      ) : undefined}
+
       <PrimaryButton onPress={() => navigation.goBack()} title="Volver al inicio" />
     </ScrollView>
+  );
+}
+
+function RecommendedCard({ exercise }: { exercise: Exercise }) {
+  return (
+    <View style={styles.recommendedCard}>
+      <View style={styles.cardHeader}>
+        <Text style={styles.category}>{exercise.category}</Text>
+        <Text style={styles.intensity}>{exercise.durationMinutes} min</Text>
+      </View>
+      <Text style={styles.cardTitle}>{exercise.name}</Text>
+      <Text style={styles.cardText}>{exercise.recommendationReason ?? 'Recomendado por compatibilidad con tu perfil.'}</Text>
+      <Text style={styles.meta}>Intensidad {exercise.intensity}</Text>
+    </View>
   );
 }
 
@@ -98,6 +124,10 @@ const styles = StyleSheet.create({
   loadingCard: { alignItems: 'center', backgroundColor: colors.surface, borderRadius: 22, gap: 12, padding: 28 },
   loadingText: { color: colors.muted, fontWeight: '700' },
   meta: { color: colors.primaryDark, fontSize: 13, fontWeight: '900' },
+  recommendedCard: { backgroundColor: colors.primarySoft, borderRadius: 18, gap: 8, padding: 16 },
+  recommendedSection: { gap: 12 },
+  sectionText: { color: colors.muted, fontSize: 14, lineHeight: 20 },
+  sectionTitle: { color: colors.text, fontSize: 20, fontWeight: '900' },
   subtitle: { color: colors.muted, fontSize: 16, lineHeight: 22 },
   title: { color: colors.text, fontSize: 32, fontWeight: '900' },
 });
