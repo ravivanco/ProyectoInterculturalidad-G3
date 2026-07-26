@@ -47,4 +47,19 @@ export const trackingService = {
     meal.status = status;
     return cloneSummary();
   },
+
+  async saveWeight(weightKg: number) {
+    if (!Number.isFinite(weightKg) || weightKg < 20 || weightKg > 350) {
+      throw new Error('Ingresa un peso válido.');
+    }
+
+    const existing = weightHistory.find((record) => record.date === todayIso);
+    if (existing) {
+      existing.weightKg = weightKg;
+    } else {
+      weightHistory.push({ id: `w-${todayIso}`, date: todayIso, weightKg });
+    }
+
+    return cloneSummary();
+  },
 };
