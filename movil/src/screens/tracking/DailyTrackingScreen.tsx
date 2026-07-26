@@ -11,6 +11,12 @@ import type { DailyTrackingSummary, MealCompletionStatus, PlannedMealTracking } 
 
 const todayIso = new Date().toISOString().slice(0, 10);
 
+const statusConfig: Record<MealCompletionStatus, { label: string; icon: string }> = {
+  pending: { label: 'Pendiente', icon: '○' },
+  completed: { label: 'Realizada', icon: '✓' },
+  skipped: { label: 'No realizada', icon: '×' },
+};
+
 export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'DailyTracking'>) {
   const [summary, setSummary] = useState<DailyTrackingSummary>();
   const [weight, setWeight] = useState('');
@@ -161,15 +167,18 @@ type MealTrackingCardProps = {
 
 function MealTrackingCard({ meal, onChange }: MealTrackingCardProps) {
   const disabled = meal.date !== todayIso;
+  const config = statusConfig[meal.status];
 
   return (
-    <View style={[styles.mealCard, disabled ? styles.mealCardDisabled : undefined]}>
+    <View style={[styles.mealCard, styles[`mealCard_${meal.status}`], disabled ? styles.mealCardDisabled : undefined]}>
       <View style={styles.mealHeader}>
         <Text style={styles.mealSlot}>{mealSlotLabels[meal.slot]}</Text>
-        <Text style={styles.mealDate}>{meal.date}</Text>
+        <View style={[styles.statusBadge, styles[`statusBadge_${meal.status}`]]}>
+          <Text style={styles.statusBadgeText}>{config.icon} {config.label}</Text>
+        </View>
       </View>
       <Text style={styles.mealTitle}>{meal.title}</Text>
-      <Text style={styles.mealMeta}>{meal.calories} kcal · Estado: {meal.status}</Text>
+      <Text style={styles.mealMeta}>{meal.calories} kcal · {meal.date}</Text>
       {disabled ? <Text style={styles.blockedText}>Día futuro bloqueado</Text> : undefined}
       <View style={styles.actions}>
         <Pressable disabled={disabled} onPress={() => onChange(meal, 'completed')} style={[styles.actionButton, disabled ? styles.actionDisabled : undefined]}>
@@ -210,6 +219,9 @@ const styles = StyleSheet.create({
   calorieValue: { color: colors.primary, fontSize: 34, fontWeight: '900' },
   kicker: { color: colors.primary, fontSize: 13, fontWeight: '900', letterSpacing: 1, textTransform: 'uppercase' },
   mealCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 18, borderWidth: 1, padding: 16 },
+  mealCard_completed: { borderColor: colors.primary },
+  mealCard_pending: { borderColor: colors.border },
+  mealCard_skipped: { borderColor: colors.danger },
   mealCardDisabled: { opacity: 0.65 },
   mealDate: { color: colors.muted, fontSize: 12, fontWeight: '800' },
   mealHeader: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
@@ -224,6 +236,11 @@ const styles = StyleSheet.create({
   progressVariation: { fontSize: 14, fontWeight: '900' },
   section: { gap: 12 },
   sectionTitle: { color: colors.text, fontSize: 20, fontWeight: '900' },
+  statusBadge: { borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5 },
+  statusBadge_completed: { backgroundColor: colors.primarySoft },
+  statusBadge_pending: { backgroundColor: '#EEF2F6' },
+  statusBadge_skipped: { backgroundColor: '#FEE4E2' },
+  statusBadgeText: { color: colors.text, fontSize: 12, fontWeight: '900' },
   subtitle: { color: colors.muted, fontSize: 16, lineHeight: 22 },
   title: { color: colors.text, fontSize: 32, fontWeight: '900' },
   weightCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 18, borderWidth: 1, gap: 12, padding: 16 },
