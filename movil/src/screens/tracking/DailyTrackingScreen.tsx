@@ -20,6 +20,8 @@ const statusConfig: Record<MealCompletionStatus, { label: string; icon: string }
 export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'DailyTracking'>) {
   const [summary, setSummary] = useState<DailyTrackingSummary>();
   const [weight, setWeight] = useState('');
+  const [additionalName, setAdditionalName] = useState('');
+  const [additionalCalories, setAdditionalCalories] = useState('');
 
   useEffect(() => {
     trackingService.getDailySummary().then(setSummary);
@@ -72,6 +74,21 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
       Alert.alert('Peso guardado', 'Tu peso diario fue registrado correctamente.');
     } catch (error) {
       Alert.alert('Dato inválido', error instanceof Error ? error.message : 'Ingresa un peso válido.');
+    }
+  };
+
+  const addAdditionalFood = async () => {
+    try {
+      const nextSummary = await trackingService.addAdditionalFood({
+        name: additionalName,
+        calories: Number(additionalCalories.replace(',', '.')),
+      });
+      setSummary(nextSummary);
+      setAdditionalName('');
+      setAdditionalCalories('');
+      Alert.alert('Alimento registrado', 'El alimento adicional fue asociado al día actual.');
+    } catch (error) {
+      Alert.alert('No se pudo registrar', error instanceof Error ? error.message : 'Revisa los datos ingresados.');
     }
   };
 
@@ -131,6 +148,35 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
           />
           <PrimaryButton disabled={!weight.trim()} onPress={saveWeight} title="Guardar peso" />
         </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Alimento adicional</Text>
+        <View style={styles.weightCard}>
+          <Text style={styles.infoHint}>Registra alimentos consumidos fuera del plan. Se asociarán a {todayIso}.</Text>
+          <TextInput
+            onChangeText={setAdditionalName}
+            placeholder="Nombre del alimento"
+            placeholderTextColor={colors.muted}
+            style={styles.input}
+            value={additionalName}
+          />
+          <TextInput
+            keyboardType="decimal-pad"
+            onChangeText={setAdditionalCalories}
+            placeholder="Calorías estimadas"
+            placeholderTextColor={colors.muted}
+            style={styles.input}
+            value={additionalCalories}
+          />
+          <PrimaryButton disabled={!additionalName.trim() || !additionalCalories.trim()} onPress={addAdditionalFood} title="Registrar alimento" />
+        </View>
+        {(summary?.additionalFoods ?? []).map((food) => (
+          <View key={food.id} style={styles.additionalFoodCard}>
+            <Text style={styles.mealTitle}>{food.name}</Text>
+            <Text style={styles.mealMeta}>{food.calories} kcal · {food.date} · {food.status}</Text>
+          </View>
+        ))}
       </View>
 
       <View style={styles.section}>
@@ -197,6 +243,7 @@ const styles = StyleSheet.create({
   actionDisabled: { backgroundColor: colors.disabled },
   actionText: { color: colors.surface, fontWeight: '900' },
   actions: { flexDirection: 'row', gap: 10, marginTop: 12 },
+  additionalFoodCard: { backgroundColor: colors.primarySoft, borderRadius: 16, padding: 14 },
   blockedText: { color: colors.danger, fontSize: 13, fontWeight: '800', marginTop: 8 },
   balanceCard: { backgroundColor: colors.primarySoft, borderRadius: 22, gap: 10, padding: 18 },
   balanceCardDanger: { backgroundColor: '#FEE4E2' },

@@ -63,4 +63,23 @@ export const trackingService = {
 
     return cloneSummary();
   },
+
+  async addAdditionalFood(payload: { name: string; calories: number }) {
+    const name = payload.name.trim();
+    if (!name) throw new Error('Ingresa el nombre del alimento.');
+    if (!Number.isFinite(payload.calories) || payload.calories <= 0) throw new Error('Ingresa calorías válidas.');
+
+    additionalFoods.push({
+      id: `food-${Date.now()}`,
+      name,
+      date: todayIso,
+      calories: Math.round(payload.calories),
+      protein: 0,
+      carbs: 0,
+      fat: 0,
+      status: 'confirmed',
+    });
+
+    return cloneSummary();
+  },
 };
