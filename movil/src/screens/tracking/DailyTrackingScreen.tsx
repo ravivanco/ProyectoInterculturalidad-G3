@@ -6,6 +6,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 
 import { PrimaryButton } from '../../components/PrimaryButton';
 import { mealSlotLabels } from '../../constants/mealSlots';
 import type { RootStackParamList } from '../../navigation/types';
+import { mealReminderService } from '../../services/mealReminderService';
 import { trackingService } from '../../services/trackingService';
 import { colors } from '../../theme/colors';
 import type { DailyTrackingSummary, MealCompletionStatus, PlannedMealTracking } from '../../types/tracking';
@@ -25,6 +26,8 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
   const [additionalCalories, setAdditionalCalories] = useState('');
   const [additionalImageUri, setAdditionalImageUri] = useState<string>();
   const [estimatedFood, setEstimatedFood] = useState<{ calories: number; protein: number; carbs: number; fat: number }>();
+  const [remindersEnabled, setRemindersEnabled] = useState(false);
+  const [reminderSummary, setReminderSummary] = useState<Array<{ label: string; time: string }>>([]);
 
   useEffect(() => {
     trackingService.getDailySummary().then(setSummary);
@@ -120,6 +123,17 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
     setEstimatedFood(estimate);
   };
 
+  const activateMealReminders = async () => {
+    try {
+      const reminders = await mealReminderService.activateLocalMealReminders();
+      setReminderSummary(reminders);
+      setRemindersEnabled(true);
+      Alert.alert('Alertas activadas', 'Se programaron recordatorios locales para tus cinco tiempos de comida.');
+    } catch (error) {
+      Alert.alert('No se pudieron activar', error instanceof Error ? error.message : 'Revisa los permisos de notificaciones.');
+    }
+  };
+
   const pickImage = async (source: 'camera' | 'gallery') => {
     if (source === 'camera') {
       const permission = await ImagePicker.requestCameraPermissionsAsync();
@@ -151,6 +165,17 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
         <Text style={styles.infoText}>{todayIso}</Text>
         <Text style={styles.infoHint}>Los días futuros quedan bloqueados para mantener un seguimiento real.</Text>
       </View>
+
+      <View style={styles.notificationCard}>
+        <Text style={styles.infoTitle}>Alertas de comidas</Text>
+        <Text style={styles.notificationTitle}>{remindersEnabled ? 'Notificaciones locales activas' : 'Activa recordatorios del plan'}</Text>
+        <Text style={styles.infoHint}>Recibe avisos para desayuno, media ma?ana, almuerzo, media tarde y cena.</Text>
+        <PrimaryButton onPress={activateMealReminders} title={remindersEnabled ? 'Reprogramar alertas' : 'Activar notificaciones'} />
+        {reminderSummary.length ? reminderSummary.map((reminder) => (
+          <Text key={reminder.label} style={styles.duplicateHint}>{reminder.label}: {reminder.time}</Text>
+        )) : undefined}
+      </View>
+
 
       <View style={styles.calorieCard}>
         <Text style={styles.infoTitle}>Calorías consumidas hoy</Text>
@@ -362,6 +387,8 @@ const styles = StyleSheet.create({
   mealMeta: { color: colors.muted, fontSize: 14, marginTop: 4 },
   mealSlot: { color: colors.primary, fontSize: 12, fontWeight: '900', textTransform: 'uppercase' },
   mealTitle: { color: colors.text, fontSize: 17, fontWeight: '900', marginTop: 8 },
+  notificationCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 22, borderWidth: 1, gap: 10, padding: 18 },
+  notificationTitle: { color: colors.text, fontSize: 18, fontWeight: '900' },
   secondaryAction: { backgroundColor: colors.primaryDark },
   progressCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 18, borderWidth: 1, gap: 12, padding: 16 },
   progressDown: { color: colors.primaryDark },
