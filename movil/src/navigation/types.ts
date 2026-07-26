@@ -5,4 +5,5 @@ export type RootStackParamList = {
   Home: undefined;
   WeeklyMenu: undefined;
   MealDetail: { dayId: string; mealId: string };
+  Exercises: undefined;
 };
