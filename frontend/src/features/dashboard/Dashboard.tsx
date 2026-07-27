@@ -6,6 +6,7 @@ import { AppointmentsPanel } from './components/AppointmentsPanel';
 import { DashboardWeightChart } from './components/DashboardWeightChart';
 import { DashboardCompositionChart } from './components/DashboardCompositionChart';
 import { DashboardCaloriesChart } from './components/DashboardCaloriesChart';
+import { DashboardBalancePanel } from './components/DashboardBalancePanel';
 
 export default function Dashboard() {
   const stats = useDashboardStats();
@@ -37,6 +38,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <DashboardCaloriesChart />
+        <DashboardBalancePanel />
       </div>
     </>
   );
