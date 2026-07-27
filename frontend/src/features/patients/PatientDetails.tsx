@@ -1,0 +1,423 @@
+import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, User, Activity, AlertCircle, Phone, Mail, Weight, Ruler, FileText, HeartPulse, Ban, Apple, Target, Plus, Calendar, History, PlayCircle, Lock, Unlock } from 'lucide-react';
+import { usePatientProfile } from './hooks/usePatientProfile';
+import { useActivatePlan } from './hooks/useActivatePlan';
+import { ClinicalEvaluationModal } from './components/ClinicalEvaluationModal';
+import { ActivatePlanModal } from './components/ActivatePlanModal';
+import { AdherencePanel } from './components/AdherencePanel';
+
+export function PatientDetails() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  
+  const { patient, isLoading, error } = usePatientProfile(id);
+  const { activatePlan, isActivating, lockPlan, isLocking, unlockPlan, isUnlocking } = useActivatePlan(id || '');
+
+  const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
+  const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
+
+  const getTreatmentColor = (state?: string) => {
+    switch(state) {
+      case 'Activo': return 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400';
+      case 'Pendiente': return 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400';
+      case 'Suspendido': return 'bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400';
+      case 'Finalizado': return 'bg-slate-100 dark:bg-slate-500/20 text-slate-700 dark:text-slate-400';
+      default: return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300';
+    }
+  };
+
+  const handleActivatePlan = async (startDate: string) => {
+    try {
+      await activatePlan(startDate);
+      setIsActivateModalOpen(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleToggleLock = async () => {
+    if (!patient) return;
+    try {
+      if (patient.isPlanLocked) {
+        await unlockPlan();
+      } else {
+        await lockPlan();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="py-20 flex flex-col items-center justify-center">
+        <span className="w-8 h-8 border-4 border-border border-t-primary rounded-full animate-spin mb-4"></span>
+        <p className="text-muted text-sm">Cargando ficha del paciente...</p>
+      </div>
+    );
+  }
+
+  if (error || !patient) {
+    return (
+      <div className="py-20 flex flex-col items-center justify-center text-center">
+        <div className="w-20 h-20 bg-red-50 dark:bg-red-500/10 rounded-full flex items-center justify-center mb-6">
+          <AlertCircle size={32} className="text-red-500" />
+        </div>
+        <h3 className="text-xl font-bold text-foreground mb-2">Paciente no encontrado</h3>
+        <p className="text-muted text-sm max-w-md mb-6">{error?.message || 'Error al cargar el paciente'}</p>
+        <button 
+          onClick={() => navigate('/patients')}
+          className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-gray-900 font-semibold py-2 px-6 rounded-full transition-all text-sm"
+        >
+          <ArrowLeft size={16} /> Volver al listado
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto pb-10">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => navigate('/patients')}
+            className="p-2 text-muted hover:text-foreground hover:bg-surface rounded-full transition-colors"
+          >
+            <ArrowLeft size={20} />
+          </button>
+          <div>
+            <h1 className="text-[28px] font-bold text-foreground transition-colors">Ficha de Paciente</h1>
+            <p className="text-muted text-[13px] mt-1 transition-colors">ID: {patient.id} • Última visita: {patient.lastVisit}</p>
+          </div>
+        </div>
+        <button 
+          onClick={() => setIsEvaluationModalOpen(true)}
+          className="flex items-center gap-2 bg-[#eab308] hover:bg-[#d97706] text-gray-900 font-semibold py-2.5 px-6 rounded-full transition-all text-sm shadow-sm active:scale-95"
+        >
+          <Plus size={18} /> Nueva Evaluación
+        </button>
+      </div>
+
+      {/* Warning Alert if profile is incomplete */}
+      {!patient.isProfileCompleted && (
+        <div className="mb-6 p-4 bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/20 rounded-2xl flex items-start gap-3">
+          <AlertCircle className="text-orange-500 shrink-0 mt-0.5" size={20} />
+          <div>
+            <h4 className="text-orange-800 dark:text-orange-400 font-bold text-sm">Perfil Nutricional Incompleto</h4>
+            <p className="text-orange-700 dark:text-orange-300 text-[13px] mt-1">Este paciente no ha completado su evaluación inicial. Ciertos datos médicos podrían faltar.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Grid Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        {/* Left Column: Personal Info */}
+        <div className="col-span-1 space-y-6">
+          <div className="bg-surface rounded-3xl border border-border p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] transition-colors">
+            <div className="flex flex-col items-center text-center border-b border-border pb-6 mb-6">
+              <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-2xl mb-4">
+                {patient.name.charAt(0)}
+              </div>
+              <h2 className="text-xl font-bold text-foreground">{patient.name}</h2>
+              <div className="flex items-center gap-2 mt-3">
+                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                  patient.generalState === 'Alta Adherencia' ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400' :
+                  patient.generalState === 'Media Adherencia' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400' :
+                  'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
+                }`}>
+                  {patient.generalState}
+                </span>
+                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold border ${getTreatmentColor(patient.treatmentState).replace('bg-', 'border-').replace('text-', 'border-').split(' ')[0]} ${getTreatmentColor(patient.treatmentState)}`}>
+                  {patient.treatmentState || 'Pendiente'}
+                </span>
+              </div>
+              
+              {/* PROYEC-463: Botón para Activar Plan */}
+              {patient.treatmentState === 'Pendiente' && (
+                <div className="mt-5 w-full">
+                  <button 
+                    onClick={() => setIsActivateModalOpen(true)}
+                    disabled={!patient.isProfileCompleted || isActivating}
+                    className={`w-full flex justify-center items-center gap-2 font-semibold py-2.5 px-4 rounded-xl transition-all shadow-sm ${(!patient.isProfileCompleted || isActivating) ? 'bg-surface-hover text-muted cursor-not-allowed border border-border' : 'bg-emerald-500 hover:bg-emerald-600 text-white'}`}
+                  >
+                    <PlayCircle size={18} />
+                    {isActivating ? 'Activando...' : 'Activar Plan Nutricional'}
+                  </button>
+                  <p className="text-[10px] text-muted text-center mt-2">
+                    {!patient.isProfileCompleted ? 'El paciente debe completar el formulario inicial.' : 'Esto habilitará el plan en la app móvil del paciente.'}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-[11px] font-bold text-muted uppercase tracking-wider mb-2">Contacto</h3>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-surface-hover flex items-center justify-center text-muted">
+                  <Mail size={14} />
+                </div>
+                <div>
+                  <p className="text-[11px] text-muted">Correo Electrónico</p>
+                  <p className="text-[13px] font-medium text-foreground">{patient.email}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-surface-hover flex items-center justify-center text-muted">
+                  <Phone size={14} />
+                </div>
+                <div>
+                  <p className="text-[11px] text-muted">Teléfono</p>
+                  <p className="text-[13px] font-medium text-foreground">{patient.phone}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* PROYEC-471: Acceso a la App Móvil */}
+            <div className="pt-6 border-t border-border mt-6">
+              <h3 className="text-[11px] font-bold text-muted uppercase tracking-wider mb-4">Acceso a la App Móvil</h3>
+              <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-surface-hover">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${patient.isPlanLocked ? 'bg-red-500/20 text-red-500' : 'bg-emerald-500/20 text-emerald-500'}`}>
+                    {patient.isPlanLocked ? <Lock size={18} /> : <Unlock size={18} />}
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-bold text-foreground">{patient.isPlanLocked ? 'Plan Bloqueado' : 'Plan Desbloqueado'}</p>
+                    <p className="text-[11px] text-muted">{patient.isPlanLocked ? 'El paciente no puede ver su plan' : 'Acceso normal habilitado'}</p>
+                  </div>
+                </div>
+                
+                {/* Toggle Switch */}
+                <button 
+                  onClick={handleToggleLock}
+                  disabled={isLocking || isUnlocking}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface ${patient.isPlanLocked ? 'bg-red-500' : 'bg-emerald-500'} disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${patient.isPlanLocked ? 'translate-x-6' : 'translate-x-1'} flex items-center justify-center`}>
+                    {(isLocking || isUnlocking) && <span className="w-3 h-3 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></span>}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Nutritional Data */}
+        <div className="col-span-2 space-y-6">
+          <div className="bg-surface rounded-3xl border border-border p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] transition-colors h-full">
+            <h3 className="text-lg font-bold text-foreground mb-6 flex items-center gap-2">
+              <Activity size={20} className="text-primary" />
+              Perfil Nutricional Básico
+            </h3>
+
+            {patient.isProfileCompleted ? (
+              <div className="space-y-6 mb-8">
+                {/* Métricas base */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-surface-hover p-4 rounded-2xl border border-border transition-colors">
+                    <div className="flex items-center gap-2 text-muted mb-2">
+                      <User size={16} />
+                      <span className="text-xs font-semibold">Edad</span>
+                    </div>
+                    <p className="text-2xl font-bold text-foreground">{patient.age} <span className="text-sm font-normal text-muted">años</span></p>
+                  </div>
+                  
+                  <div className="bg-surface-hover p-4 rounded-2xl border border-border transition-colors">
+                    <div className="flex items-center gap-2 text-muted mb-2">
+                      <Weight size={16} />
+                      <span className="text-xs font-semibold">Peso Inicial</span>
+                    </div>
+                    <p className="text-2xl font-bold text-foreground">{patient.weight} <span className="text-sm font-normal text-muted">kg</span></p>
+                  </div>
+
+                  <div className="bg-surface-hover p-4 rounded-2xl border border-border transition-colors">
+                    <div className="flex items-center gap-2 text-muted mb-2">
+                      <Ruler size={16} />
+                      <span className="text-xs font-semibold">Estatura</span>
+                    </div>
+                    <p className="text-2xl font-bold text-foreground">{patient.height} <span className="text-sm font-normal text-muted">cm</span></p>
+                  </div>
+                </div>
+
+                {/* Formulario Inicial: Secciones */}
+                <div className="bg-surface-hover rounded-2xl border border-border p-5 space-y-5">
+                  <h4 className="text-[14px] font-bold text-foreground border-b border-border pb-2 mb-3 flex items-center gap-2">
+                    <FileText size={16} className="text-primary" />
+                    Datos del Formulario de Ingreso
+                  </h4>
+
+                  <div className="grid grid-cols-2 gap-5">
+                    {/* Condiciones y Alergias */}
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-xs font-bold text-muted uppercase tracking-wider mb-2 flex items-center gap-1.5"><HeartPulse size={14}/> Condiciones Médicas</p>
+                        {patient.medicalConditions && patient.medicalConditions.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {patient.medicalConditions.map((cond, idx) => (
+                              <span key={idx} className="bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 text-xs px-2.5 py-1 rounded-lg font-medium">{cond}</span>
+                            ))}
+                          </div>
+                        ) : <p className="text-sm text-muted">Ninguna registrada</p>}
+                      </div>
+
+                      <div>
+                        <p className="text-xs font-bold text-muted uppercase tracking-wider mb-2 flex items-center gap-1.5"><Ban size={14} className="text-red-500"/> Alergias / Intolerancias</p>
+                        {patient.allergies && patient.allergies.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {patient.allergies.map((alg, idx) => (
+                              <span key={idx} className="bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400 text-xs px-2.5 py-1 rounded-lg font-medium">{alg}</span>
+                            ))}
+                          </div>
+                        ) : <p className="text-sm text-muted">Ninguna registrada</p>}
+                      </div>
+                    </div>
+
+                    {/* Preferencias y Restricciones */}
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-xs font-bold text-muted uppercase tracking-wider mb-2 flex items-center gap-1.5"><Apple size={14} className="text-green-500"/> Preferencias</p>
+                        {patient.preferences && patient.preferences.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {patient.preferences.map((pref, idx) => (
+                              <span key={idx} className="bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 text-xs px-2.5 py-1 rounded-lg font-medium">{pref}</span>
+                            ))}
+                          </div>
+                        ) : <p className="text-sm text-muted">Ninguna registrada</p>}
+                      </div>
+
+                      <div>
+                        <p className="text-xs font-bold text-muted uppercase tracking-wider mb-2 flex items-center gap-1.5"><Ban size={14} className="text-orange-500"/> Restricciones</p>
+                        {patient.restrictions && patient.restrictions.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {patient.restrictions.map((rest, idx) => (
+                              <span key={idx} className="bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400 text-xs px-2.5 py-1 rounded-lg font-medium">{rest}</span>
+                            ))}
+                          </div>
+                        ) : <p className="text-sm text-muted">Ninguna registrada</p>}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Objetivo */}
+                  <div className="pt-2">
+                    <p className="text-xs font-bold text-muted uppercase tracking-wider mb-2 flex items-center gap-1.5"><Target size={14} className="text-purple-500"/> Objetivo del Paciente</p>
+                    <p className="text-sm text-foreground bg-surface p-3 rounded-xl border border-border">
+                      {patient.objective || <span className="text-muted italic">No especificado</span>}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="py-12 flex flex-col items-center justify-center border-2 border-dashed border-border bg-surface-hover/50 rounded-2xl mb-8">
+                <FileText size={40} className="text-muted mb-4 opacity-50" />
+                <p className="text-foreground font-bold">Formulario Inicial Pendiente</p>
+                <p className="text-muted text-sm mt-1 max-w-sm text-center">El paciente aún no ha completado su evaluación de ingreso. Las condiciones, alergias y métricas no están disponibles.</p>
+                <button className="mt-4 px-4 py-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-lg text-sm font-semibold transition-colors">
+                  Enviar recordatorio
+                </button>
+              </div>
+            )}
+
+            <div>
+              <h3 className="text-[13px] font-bold text-foreground mb-3">Notas Médicas</h3>
+              {patient.notes ? (
+                <p className="text-sm text-muted bg-surface-hover p-4 rounded-xl border border-border leading-relaxed">
+                  {patient.notes}
+                </p>
+              ) : (
+                <p className="text-sm text-muted italic">Sin notas registradas.</p>
+              )}
+            </div>
+
+            {/* Historial de Evaluaciones Clínicas (PROYEC-459) */}
+            <div className="mt-8 pt-8 border-t border-border">
+              <h3 className="text-lg font-bold text-foreground mb-6 flex items-center gap-2">
+                <History size={20} className="text-primary" />
+                Historial de Evaluaciones Clínicas
+              </h3>
+              
+              {patient.evaluations && patient.evaluations.length > 0 ? (
+                <div className="bg-surface border border-border rounded-2xl overflow-hidden">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-surface-hover border-b border-border text-xs uppercase tracking-wider text-muted font-bold">
+                        <th className="py-4 px-6 font-semibold">Fecha</th>
+                        <th className="py-4 px-6 font-semibold">Peso (kg)</th>
+                        <th className="py-4 px-6 font-semibold">Talla (cm)</th>
+                        <th className="py-4 px-6 font-semibold">Grasa Corporal (%)</th>
+                        <th className="py-4 px-6 font-semibold">Masa Muscular (%)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {patient.evaluations.map((evalItem) => (
+                        <tr key={evalItem.id} className="hover:bg-surface-hover/50 transition-colors">
+                          <td className="py-4 px-6 text-sm font-medium text-foreground flex items-center gap-2">
+                            <Calendar size={14} className="text-muted" />
+                            {new Date(evalItem.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                          </td>
+                          <td className="py-4 px-6">
+                            <span className="inline-flex items-center justify-center bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 text-xs px-2.5 py-1 rounded-lg font-bold">
+                              {evalItem.weight.toFixed(1)} kg
+                            </span>
+                          </td>
+                          <td className="py-4 px-6 text-sm font-medium text-muted">
+                            {evalItem.height} cm
+                          </td>
+                          <td className="py-4 px-6">
+                            <span className="inline-flex items-center justify-center bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400 text-xs px-2.5 py-1 rounded-lg font-bold">
+                              {evalItem.bodyFat.toFixed(1)}%
+                            </span>
+                          </td>
+                          <td className="py-4 px-6">
+                            <span className="inline-flex items-center justify-center bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-400 text-xs px-2.5 py-1 rounded-lg font-bold">
+                              {evalItem.muscleMass.toFixed(1)}%
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="py-12 flex flex-col items-center justify-center border-2 border-dashed border-border bg-surface-hover/50 rounded-2xl">
+                  <History size={40} className="text-muted mb-4 opacity-50" />
+                  <p className="text-foreground font-bold">Sin evaluaciones previas</p>
+                  <p className="text-muted text-sm mt-1 max-w-sm text-center">Aún no se ha registrado ninguna evaluación clínica para este paciente.</p>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Panel de Adherencia - Sprint 5 */}
+          <AdherencePanel patientId={patient.id} />
+          
+        </div>
+
+      </div>
+      
+      <ClinicalEvaluationModal 
+        isOpen={isEvaluationModalOpen} 
+        onClose={() => setIsEvaluationModalOpen(false)} 
+        onSave={async () => {
+          // TODO: Mover esto a useMutation cuando el endpoint POST esté listo
+          return new Promise(resolve => {
+            setTimeout(() => {
+              resolve();
+            }, 1000);
+          });
+        }} 
+      />
+      
+      {patient && (
+        <ActivatePlanModal 
+          isOpen={isActivateModalOpen}
+          onClose={() => setIsActivateModalOpen(false)}
+          onConfirm={handleActivatePlan}
+          patientName={patient.name}
+        />
+      )}
+    </div>
+  );
+}
