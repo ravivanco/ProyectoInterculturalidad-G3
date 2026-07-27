@@ -1,4 +1,4 @@
-import { AdherenceMetrics, WeightRecord, ExtraConsumption } from './types';
+import type { AdherenceMetrics, WeightRecord, ExtraConsumption } from './types';
 
 export const MOCK_ADHERENCE: AdherenceMetrics = {
   patientId: 'p-1',
