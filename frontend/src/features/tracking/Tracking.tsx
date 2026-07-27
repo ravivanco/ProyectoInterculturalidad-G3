@@ -137,7 +137,7 @@ export function Tracking() {
 
             {/* Simulación visual del gráfico */}
             <div className="h-64 flex items-end justify-between gap-2 border-l border-b border-border p-4 relative">
-              {weightHistory.map((record, index) => {
+              {weightHistory.map((record) => {
                 const height = `${((record.weight - 75) / 15) * 100}%`; // Normalización simple
                 return (
                   <div key={record.id} className="w-full flex flex-col items-center gap-3 group relative">

@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import { api } from '../../../lib/axios';
-import { endpoints } from '../../../lib/endpoints';
 
 import { foodApi } from '../../foods/services/foodApi';
 import { exerciseApi } from '../../exercises/services/exerciseApi';
