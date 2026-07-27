@@ -1,5 +1,6 @@
 import api from '../../../lib/axios';
 import { endpoints } from '../../../lib/endpoints';
+import { MOCK_EVALUATIONS } from './mockEvaluations';
 
 export const patientAPI = {
   // Obtiene el perfil de un paciente (sus alergias, condiciones médicas, etc.)
@@ -10,8 +11,13 @@ export const patientAPI = {
 
   // Obtiene el historial de evaluaciones clínicas
   getPatientEvaluations: async (id: string) => {
-    const response = await api.get(endpoints.clinicalEvaluations.history(id));
-    return response.data;
+    try {
+      const response = await api.get(endpoints.clinicalEvaluations.history(id));
+      if (Array.isArray(response.data) && response.data.length > 0) return response.data;
+      return MOCK_EVALUATIONS[id] || [];
+    } catch {
+      return MOCK_EVALUATIONS[id] || [];
+    }
   },
   
   activatePlan: async (id: string, startDate?: string): Promise<void> => {

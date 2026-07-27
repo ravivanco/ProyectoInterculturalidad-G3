@@ -37,7 +37,7 @@ export function usePatientProfile(patientId: string | undefined) {
         preferences: profileData.foodPreferences || [],
         restrictions: profileData.foodRestrictions || [],
         objective: profileData.nutritionGoal || '',
-        evaluations: evaluationsData?.evaluations || [],
+        evaluations: Array.isArray(evaluationsData) ? evaluationsData : (evaluationsData?.evaluations || []),
         isPlanLocked: false,
       };
     },
