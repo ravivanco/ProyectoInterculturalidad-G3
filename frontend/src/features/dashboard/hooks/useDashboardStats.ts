@@ -2,6 +2,11 @@ import { useState, useEffect } from 'react';
 import { api } from '../../../lib/axios';
 import { endpoints } from '../../../lib/endpoints';
 
+import { foodApi } from '../../foods/services/foodApi';
+import { exerciseApi } from '../../exercises/services/exerciseApi';
+import { plansApi } from '../../plans/services/plansApi';
+import { patientsAPI } from '../../patients/services/patientsApi';
+
 export interface DashboardStats {
   totalPatients: number;
   activePatients: number;
@@ -28,18 +33,12 @@ export function useDashboardStats(): DashboardStats {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        // Peticiones en paralelo a los módulos principales
-        const [patientsRes, foodsRes, exercisesRes, plansRes] = await Promise.allSettled([
-          api.get(endpoints.patients.list),
-          api.get('/foods'),
-          api.get('/exercises'),
-          api.get(endpoints.nutritionPlans.list),
+        const [patients, foods, exercises, plans] = await Promise.all([
+          patientsAPI.getPatients().catch(() => []),
+          foodApi.getFoods().catch(() => []),
+          exerciseApi.getExercises().catch(() => []),
+          plansApi.getPlans().catch(() => []),
         ]);
-
-        const patients = patientsRes.status === 'fulfilled' ? patientsRes.value.data : [];
-        const foods = foodsRes.status === 'fulfilled' ? foodsRes.value.data : [];
-        const exercises = exercisesRes.status === 'fulfilled' ? exercisesRes.value.data : [];
-        const plans = plansRes.status === 'fulfilled' ? plansRes.value.data : [];
 
         const patientList = Array.isArray(patients) ? patients : [];
         const foodList = Array.isArray(foods) ? foods : [];

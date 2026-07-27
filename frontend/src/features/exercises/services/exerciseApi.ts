@@ -19,9 +19,10 @@ export const exerciseApi = {
       const saved = localStorage.getItem('dkfitt_exercises');
       if (saved) {
         try {
-          return JSON.parse(saved);
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) return parsed;
         } catch {
-          return INITIAL_EXERCISES;
+          // Fallback if invalid
         }
       }
       return INITIAL_EXERCISES;
