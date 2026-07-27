@@ -11,6 +11,7 @@ const Plans = lazy(() => import('./features/plans').then(module => ({ default: m
 const Exercises = lazy(() => import('./features/exercises').then(module => ({ default: module.Exercises })));
 const Tracking = lazy(() => import('./features/tracking').then(module => ({ default: module.Tracking })));
 const Alerts = lazy(() => import('./features/alerts').then(module => ({ default: module.Alerts })));
+const Appointments = lazy(() => import('./features/appointments').then(module => ({ default: module.Appointments })));
 const Layout = lazy(() => import('./components/Layout'));
 
 const FallbackLoader = () => (
@@ -47,6 +48,7 @@ function App() {
             <Route path="/exercises" element={<Exercises />} />
             <Route path="/tracking" element={<Tracking />} />
             <Route path="/alerts" element={<Alerts />} />
+            <Route path="/appointments" element={<Appointments />} />
           </Route>
           
           <Route path="/" element={<Navigate to="/dashboard" replace />} />

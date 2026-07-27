@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { appointmentsApi, type Appointment } from '../services/appointmentsApi';
+import { appointmentsApi } from '../../appointments/services/appointmentsApi';
+import type { Appointment } from '../../appointments/types';
 import { Calendar as CalendarIcon, Clock } from 'lucide-react';
 
 export function AppointmentsPanel() {
