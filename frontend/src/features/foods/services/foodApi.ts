@@ -20,9 +20,10 @@ export const foodApi = {
       const saved = localStorage.getItem('dkfitt_foods');
       if (saved) {
         try {
-          return JSON.parse(saved);
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) return parsed;
         } catch {
-          return INITIAL_FOODS;
+          // invalid json
         }
       }
       return INITIAL_FOODS;

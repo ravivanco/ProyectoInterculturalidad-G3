@@ -41,9 +41,10 @@ export function Foods() {
     const saved = localStorage.getItem('dkfitt_foods');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
       } catch {
-        return INITIAL_FOODS;
+        // Fallback below
       }
     }
     return INITIAL_FOODS;
