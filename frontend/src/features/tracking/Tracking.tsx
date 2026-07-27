@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { BarChart2, Scale, AlertTriangle, TrendingUp, TrendingDown, Target, Camera, CheckCircle, Clock } from 'lucide-react';
+import { BarChart2, Scale, AlertTriangle, TrendingUp, TrendingDown, Target, Camera, CheckCircle, Clock, Flame } from 'lucide-react';
 import { MOCK_ADHERENCE, MOCK_WEIGHT_HISTORY, MOCK_EXTRA_CONSUMPTION } from './mockTracking';
 
 export function Tracking() {
