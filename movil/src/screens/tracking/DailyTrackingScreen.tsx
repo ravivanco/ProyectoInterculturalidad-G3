@@ -172,15 +172,26 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
         </View>
       </View>
 
+      {/* Additional food registration section for HUM-37 */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Alimento adicional</Text>
+        <Text accessibilityRole="header" style={styles.sectionTitle}>Alimento adicional</Text>
         <View style={styles.weightCard}>
           <Text style={styles.infoHint}>Registra alimentos consumidos fuera del plan. Se asociarán a {todayIso}.</Text>
           <View style={styles.actions}>
-            <Pressable onPress={() => pickImage('camera')} style={styles.imageButton}>
+            <Pressable 
+              onPress={() => pickImage('camera')} 
+              accessibilityRole="button"
+              accessibilityLabel="Tomar foto del alimento adicional usando la cámara"
+              style={styles.imageButton}
+            >
               <Text style={styles.imageButtonText}>Tomar foto</Text>
             </Pressable>
-            <Pressable onPress={() => pickImage('gallery')} style={styles.imageButton}>
+            <Pressable 
+              onPress={() => pickImage('gallery')} 
+              accessibilityRole="button"
+              accessibilityLabel="Elegir foto del alimento adicional de la galería de imágenes"
+              style={styles.imageButton}
+            >
               <Text style={styles.imageButtonText}>Elegir galería</Text>
             </Pressable>
           </View>
