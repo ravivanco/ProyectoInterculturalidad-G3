@@ -85,7 +85,11 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
         <Text style={styles.infoHint}>Se actualiza automáticamente según comidas marcadas y alimentos confirmados.</Text>
       </View>
 
-      <View style={[styles.balanceCard, remainingCalories < 0 ? styles.balanceCardDanger : undefined]}>
+      {/* Daily calorie tracking card for HUM-33 */}
+      <View 
+        accessibilityLabel={`Control de balance calórico diario. Meta diaria: ${summary?.calorieGoal ?? 0} kcal. Restantes: ${remainingCalories} kcal. ${remainingCalories < 0 ? 'Superaste tu objetivo diario. Revisa tus registros adicionales.' : 'Aún tienes calorías disponibles para el día.'}`}
+        style={[styles.balanceCard, remainingCalories < 0 ? styles.balanceCardDanger : undefined]}
+      >
         <View style={styles.balanceRow}>
           <View>
             <Text style={styles.infoTitle}>Meta diaria</Text>
