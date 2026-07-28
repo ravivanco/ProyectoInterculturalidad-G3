@@ -165,12 +165,20 @@ type MealTrackingCardProps = {
   onChange: (meal: PlannedMealTracking, status: MealCompletionStatus) => void;
 };
 
+/**
+ * Component that displays a card with the details of a planned meal,
+ * using different border colors and status badges to represent its visual state.
+ * Refactored under HUM-35.
+ */
 function MealTrackingCard({ meal, onChange }: MealTrackingCardProps) {
   const disabled = meal.date !== todayIso;
   const config = statusConfig[meal.status];
 
   return (
-    <View style={[styles.mealCard, styles[`mealCard_${meal.status}`], disabled ? styles.mealCardDisabled : undefined]}>
+    <View 
+      accessibilityLabel={`Comida: ${meal.title}. Horario: ${mealSlotLabels[meal.slot]}. Calorías: ${meal.calories} kcal. Estado: ${config.label}.`}
+      style={[styles.mealCard, styles[`mealCard_${meal.status}`], disabled ? styles.mealCardDisabled : undefined]}
+    >
       <View style={styles.mealHeader}>
         <Text style={styles.mealSlot}>{mealSlotLabels[meal.slot]}</Text>
         <View style={[styles.statusBadge, styles[`statusBadge_${meal.status}`]]}>
@@ -181,10 +189,22 @@ function MealTrackingCard({ meal, onChange }: MealTrackingCardProps) {
       <Text style={styles.mealMeta}>{meal.calories} kcal · {meal.date}</Text>
       {disabled ? <Text style={styles.blockedText}>Día futuro bloqueado</Text> : undefined}
       <View style={styles.actions}>
-        <Pressable disabled={disabled} onPress={() => onChange(meal, 'completed')} style={[styles.actionButton, disabled ? styles.actionDisabled : undefined]}>
+        <Pressable 
+          disabled={disabled} 
+          onPress={() => onChange(meal, 'completed')} 
+          accessibilityRole="button"
+          accessibilityLabel="Marcar comida como realizada"
+          style={[styles.actionButton, disabled ? styles.actionDisabled : undefined]}
+        >
           <Text style={styles.actionText}>Realizada</Text>
         </Pressable>
-        <Pressable disabled={disabled} onPress={() => onChange(meal, 'skipped')} style={[styles.actionButton, styles.secondaryAction, disabled ? styles.actionDisabled : undefined]}>
+        <Pressable 
+          disabled={disabled} 
+          onPress={() => onChange(meal, 'skipped')} 
+          accessibilityRole="button"
+          accessibilityLabel="Marcar comida como no realizada"
+          style={[styles.actionButton, styles.secondaryAction, disabled ? styles.actionDisabled : undefined]}
+        >
           <Text style={styles.actionText}>No realizada</Text>
         </Pressable>
       </View>
