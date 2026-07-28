@@ -10,6 +10,11 @@ import type { Exercise, ExerciseCategory } from '../../types/exercise';
 
 const categories: Array<ExerciseCategory | 'Todas'> = ['Todas', 'Cardio', 'Fuerza', 'Flexibilidad', 'Movilidad'];
 
+/**
+ * Screen that shows the catalog of exercises grouped by categories
+ * and displays recommended exercises based on the user's health/sports profile.
+ * Coordinated under HUM-22 user story.
+ */
 export function ExercisesScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Exercises'>) {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [category, setCategory] = useState<ExerciseCategory | 'Todas'>('Todas');
@@ -40,7 +45,14 @@ export function ExercisesScreen({ navigation }: NativeStackScreenProps<RootStack
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {categories.map((item) => (
-          <Pressable key={item} onPress={() => setCategory(item)} style={[styles.chip, category === item ? styles.chipSelected : undefined]}>
+          <Pressable 
+            key={item} 
+            onPress={() => setCategory(item)} 
+            accessibilityRole="button"
+            accessibilityLabel={`Filtrar ejercicios por categoría ${item}`}
+            accessibilityState={{ selected: category === item }}
+            style={[styles.chip, category === item ? styles.chipSelected : undefined]}
+          >
             <Text style={[styles.chipText, category === item ? styles.chipTextSelected : undefined]}>{item}</Text>
           </Pressable>
         ))}
