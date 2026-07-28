@@ -93,18 +93,25 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Progreso y estadísticas</Text>
-        <View style={styles.progressCard}>
+        <Text accessibilityRole="header" style={styles.sectionTitle}>Progreso y estadísticas</Text>
+        <View 
+          accessibilityLabel={`Progreso de peso: ${progress.last ? `${progress.last.weightKg} kg` : 'Sin datos registrados'}`}
+          style={styles.progressCard}
+        >
           <Text style={styles.progressValue}>{progress.last ? `${progress.last.weightKg} kg` : 'Sin datos'}</Text>
           <Text style={[styles.progressVariation, progress.variation > 0 ? styles.progressUp : styles.progressDown]}>
             Variación: {progress.variation > 0 ? '+' : ''}{progress.variation} kg
           </Text>
-          <View style={styles.chart}>
+          <View style={styles.chart} accessibilityLabel="Gráfico de evolución de peso diario">
             {progress.records.map((record) => {
               const range = Math.max(progress.max - progress.min, 1);
               const height = 36 + ((record.weightKg - progress.min) / range) * 70;
               return (
-                <View key={record.id} style={styles.chartItem}>
+                <View 
+                  key={record.id} 
+                  accessibilityLabel={`Registro del día ${record.date}: ${record.weightKg} kg`}
+                  style={styles.chartItem}
+                >
                   <View style={[styles.chartBar, { height }]} />
                   <Text style={styles.chartLabel}>{record.date.slice(5)}</Text>
                 </View>
