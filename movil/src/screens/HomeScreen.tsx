@@ -13,6 +13,7 @@ export function HomeScreen({ navigation }: NativeStackScreenProps<RootStackParam
       <Text style={styles.subtitle}>Consulta tu menú semanal, ejercicios y seguimiento diario desde un solo lugar.</Text>
       <PrimaryButton onPress={() => navigation.navigate('WeeklyMenu')} title="Ver Mi Plan" />
       <PrimaryButton onPress={() => navigation.navigate('Exercises')} title="Ver Ejercicios" />
+      <PrimaryButton onPress={() => navigation.navigate('DailyTracking')} title="Control Diario" />
     </View>
   );
 }
