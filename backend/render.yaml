@@ -1,0 +1,20 @@
+# PG3-360 — Deploy API-S6 en Render (Bryan Gualpa / Brandon Fonseca)
+services:
+  - type: web
+    name: dk-fitt-api-g3
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: ENABLE_SWAGGER
+        value: "true"
