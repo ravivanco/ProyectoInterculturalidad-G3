@@ -3,10 +3,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { PrimaryButton } from '../../components/PrimaryButton';
+import { mealSlotLabels, mealSlotOrder } from '../../constants/mealSlots';
 import type { RootStackParamList } from '../../navigation/types';
 import { nutritionPlanService } from '../../services/nutritionPlanService';
 import { colors } from '../../theme/colors';
-import type { MenuDay, WeeklyNutritionPlan } from '../../types/nutritionPlan';
+import type { MealSlot, MenuDay, WeeklyNutritionPlan } from '../../types/nutritionPlan';
 
 export function WeeklyMenuScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'WeeklyMenu'>) {
   const [plan, setPlan] = useState<WeeklyNutritionPlan>();
@@ -57,14 +58,18 @@ export function WeeklyMenuScreen({ navigation }: NativeStackScreenProps<RootStac
             <View style={styles.dayCard}>
               <Text style={styles.dayTitle}>{selectedDay.label}</Text>
               <Text style={styles.dayMeta}>{selectedDay.date} · {selectedDay.totalCalories} kcal planificadas</Text>
-              {selectedDay.meals.map((meal) => (
-                <View key={meal.id} style={styles.mealRow}>
-                  <View>
-                    <Text style={styles.mealTitle}>{meal.title}</Text>
-                    <Text style={styles.mealMeta}>{meal.calories} kcal · {meal.tags.join(', ')}</Text>
-                  </View>
-                </View>
-              ))}
+              {mealSlotOrder.map((slot) => {
+                const meal = selectedDay.meals.find((item) => item.slot === slot);
+                return (
+                  <MealSlotCard
+                    calories={meal?.calories}
+                    key={slot}
+                    slot={slot}
+                    tags={meal?.tags ?? []}
+                    title={meal?.title ?? 'Pendiente de asignar'}
+                  />
+                );
+              })}
             </View>
           ) : (
             <Text style={styles.empty}>No hay menús disponibles para esta semana.</Text>
@@ -74,6 +79,28 @@ export function WeeklyMenuScreen({ navigation }: NativeStackScreenProps<RootStac
 
       <PrimaryButton onPress={() => navigation.goBack()} title="Volver al inicio" />
     </ScrollView>
+  );
+}
+
+type MealSlotCardProps = {
+  slot: MealSlot;
+  title: string;
+  calories?: number;
+  tags: string[];
+};
+
+function MealSlotCard({ slot, title, calories, tags }: MealSlotCardProps) {
+  return (
+    <View style={styles.mealRow}>
+      <View style={styles.mealBadge}>
+        <Text style={styles.mealBadgeText}>{mealSlotLabels[slot].slice(0, 2)}</Text>
+      </View>
+      <View style={styles.mealContent}>
+        <Text style={styles.mealSlot}>{mealSlotLabels[slot]}</Text>
+        <Text style={styles.mealTitle}>{title}</Text>
+        <Text style={styles.mealMeta}>{calories ? `${calories} kcal` : 'Sin calorías registradas'}{tags.length ? ` · ${tags.join(', ')}` : ''}</Text>
+      </View>
+    </View>
   );
 }
 
@@ -106,8 +133,12 @@ const styles = StyleSheet.create({
   kicker: { color: colors.primary, fontSize: 13, fontWeight: '900', letterSpacing: 1, textTransform: 'uppercase' },
   loadingCard: { alignItems: 'center', backgroundColor: colors.surface, borderRadius: 22, gap: 12, padding: 28 },
   loadingText: { color: colors.muted, fontWeight: '700' },
-  mealMeta: { color: colors.muted, fontSize: 13, marginTop: 3 },
-  mealRow: { backgroundColor: colors.primarySoft, borderRadius: 16, padding: 14 },
+  mealBadge: { alignItems: 'center', backgroundColor: colors.surface, borderRadius: 14, height: 42, justifyContent: 'center', width: 42 },
+  mealBadgeText: { color: colors.primary, fontSize: 13, fontWeight: '900' },
+  mealContent: { flex: 1 },
+  mealMeta: { color: colors.muted, fontSize: 13, marginTop: 4 },
+  mealRow: { alignItems: 'center', backgroundColor: colors.primarySoft, borderRadius: 16, flexDirection: 'row', gap: 12, padding: 14 },
+  mealSlot: { color: colors.primaryDark, fontSize: 12, fontWeight: '900', letterSpacing: 0.4, textTransform: 'uppercase' },
   mealTitle: { color: colors.text, fontSize: 16, fontWeight: '800' },
   subtitle: { color: colors.muted, fontSize: 16, lineHeight: 22 },
   summary: { backgroundColor: colors.primaryDark, borderRadius: 20, padding: 18 },
