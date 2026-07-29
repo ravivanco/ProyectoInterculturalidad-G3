@@ -7,6 +7,7 @@ import Exercise from './Exercise';
 import AdditionalIntake from './AdditionalIntake';
 import PlanExercise from './PlanExercise';
 import ExerciseTracking from './ExerciseTracking';
+import Food from './Food';
 
 // Relaciones de perfiles de usuario
 User.hasOne(PatientProfile, {
@@ -71,4 +72,5 @@ export {
   AdditionalIntake,
   PlanExercise,
   ExerciseTracking,
+  Food,
 };

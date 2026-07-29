@@ -4,6 +4,9 @@ import patientRoutes from './patientRoutes';
 import clinicalEvaluationRoutes from './clinicalEvaluationRoutes';
 import nutritionPlanRoutes from './nutritionPlanRoutes';
 import calorieControlRoutes from './calorieControlRoutes';
+import foodRoutes from './foodRoutes';
+import uploadRoutes from './uploadRoutes';
+import recipeGeneratorRoutes from './recipeGeneratorRoutes';
 
 const router = Router();
 
@@ -12,5 +15,8 @@ router.use('/patients', patientRoutes);
 router.use('/clinical-evaluations', clinicalEvaluationRoutes);
 router.use('/nutrition-plans', nutritionPlanRoutes);
 router.use('/calorie-control', calorieControlRoutes);
+router.use('/foods', foodRoutes);
+router.use('/uploads', uploadRoutes);
+router.use('/recipe-generator', recipeGeneratorRoutes);
 
 export default router;
