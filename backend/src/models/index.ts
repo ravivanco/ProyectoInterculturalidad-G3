@@ -3,6 +3,7 @@ import User from './User';
 import PatientProfile from './PatientProfile';
 import NutritionistProfile from './NutritionistProfile';
 export { default as Exercise } from './Exercise';
+export { default as AdditionalIntake } from "./AdditionalIntake";
 
 // Set up associations
 User.hasOne(PatientProfile, { foreignKey: 'userId', as: 'patientProfile' });
