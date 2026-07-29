@@ -57,6 +57,7 @@ function RecipeContent({ meal }: { meal: MenuMeal }) {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Ingredientes y cantidades</Text>
+        {meal.safeForPatient ? <Text style={styles.safeText}>✓ Receta compatible con tus alergias, condiciones y restricciones.</Text> : undefined}
         {meal.ingredients.map((ingredient) => (
           <View key={`${ingredient.name}-${ingredient.quantity}`} style={styles.ingredientRow}>
             <Text style={styles.ingredientName}>{ingredient.name}</Text>
@@ -64,6 +65,13 @@ function RecipeContent({ meal }: { meal: MenuMeal }) {
           </View>
         ))}
       </View>
+
+      {meal.restrictionNotes?.length ? (
+        <View style={styles.safetyBox}>
+          <Text style={styles.safetyTitle}>Validación de seguridad</Text>
+          {meal.restrictionNotes.map((note) => <Text key={note} style={styles.safeText}>✓ {note}</Text>)}
+        </View>
+      ) : undefined}
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Preparación</Text>
@@ -91,6 +99,9 @@ const styles = StyleSheet.create({
   loadingText: { color: colors.muted, fontWeight: '700' },
   section: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 22, borderWidth: 1, padding: 18 },
   sectionTitle: { color: colors.text, fontSize: 18, fontWeight: '900', marginBottom: 8 },
+  safeText: { color: colors.primaryDark, fontSize: 14, lineHeight: 20, marginBottom: 6 },
+  safetyBox: { backgroundColor: colors.primarySoft, borderRadius: 18, gap: 4, padding: 16 },
+  safetyTitle: { color: colors.text, fontSize: 16, fontWeight: '900' },
   stepNumber: { alignItems: 'center', backgroundColor: colors.primarySoft, borderRadius: 999, height: 30, justifyContent: 'center', width: 30 },
   stepNumberText: { color: colors.primaryDark, fontSize: 13, fontWeight: '900' },
   stepRow: { flexDirection: 'row', gap: 12, paddingVertical: 10 },

@@ -13,6 +13,8 @@ export type MenuMeal = {
   ingredients: MenuIngredient[];
   preparation: string[];
   tags: string[];
+  safeForPatient?: boolean;
+  restrictionNotes?: string[];
 };
 
 export type MenuDay = {

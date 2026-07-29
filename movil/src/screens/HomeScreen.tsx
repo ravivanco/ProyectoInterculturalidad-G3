@@ -10,8 +10,9 @@ export function HomeScreen({ navigation }: NativeStackScreenProps<RootStackParam
     <View style={styles.container}>
       <Text style={styles.brand}>DK-FITT</Text>
       <Text style={styles.title}>Tu espacio nutricional</Text>
-      <Text style={styles.subtitle}>Consulta tu menú semanal y mantén tu alimentación organizada.</Text>
+      <Text style={styles.subtitle}>Consulta tu menú semanal, ejercicios y seguimiento diario desde un solo lugar.</Text>
       <PrimaryButton onPress={() => navigation.navigate('WeeklyMenu')} title="Ver Mi Plan" />
+      <PrimaryButton onPress={() => navigation.navigate('Exercises')} title="Ver Ejercicios" />
     </View>
   );
 }

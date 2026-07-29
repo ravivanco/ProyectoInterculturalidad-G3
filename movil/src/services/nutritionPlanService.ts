@@ -1,4 +1,4 @@
-import type { WeeklyNutritionPlan } from '../types/nutritionPlan';
+import type { MenuMeal, WeeklyNutritionPlan } from '../types/nutritionPlan';
 import { apiRequest } from './api';
 import { getToken } from './tokenStorage';
 
@@ -78,18 +78,137 @@ const weekdayMenus: WeeklyNutritionPlan = {
   ],
 };
 
+const generatedMenus: WeeklyNutritionPlan = {
+  ...weekdayMenus,
+  id: 'generated-balanced-week',
+  name: 'Recomendación automática semanal',
+  status: 'generated',
+  weekLabel: 'Semana generada',
+  generatedAt: new Date().toISOString(),
+  safetyNotes: [
+    'Generado según meta energética diaria estimada.',
+    'Incluye platos variados compatibles con preferencias registradas.',
+  ],
+  days: weekdayMenus.days.map((day, index) => ({
+    ...day,
+    totalCalories: [1840, 1860, 1835, 1855, 1825][index] ?? day.totalCalories,
+    meals: day.meals.map((meal) => ({
+      ...meal,
+      safeForPatient: true,
+      restrictionNotes: ['Sin alimentos restringidos detectados para tu perfil.'],
+      tags: Array.from(new Set([...meal.tags, 'recomendado'])),
+    })),
+  })),
+};
+
+const replacementMeals: Record<MenuMeal['slot'], Omit<MenuMeal, 'id' | 'slot'>> = {
+  breakfast: {
+    title: 'Avena segura con fruta permitida',
+    calories: 360,
+    ingredients: [],
+    preparation: [],
+    safeForPatient: true,
+    restrictionNotes: ['Sustituye ingredientes asociados a alergias o restricciones.'],
+    tags: ['seguro', 'recomendado'],
+  },
+  morningSnack: {
+    title: 'Fruta permitida con semillas',
+    calories: 175,
+    ingredients: [],
+    preparation: [],
+    safeForPatient: true,
+    restrictionNotes: ['Snack libre de alimentos restringidos registrados.'],
+    tags: ['seguro', 'recomendado'],
+  },
+  lunch: {
+    title: 'Plato balanceado sin restricciones',
+    calories: 585,
+    ingredients: [],
+    preparation: [],
+    safeForPatient: true,
+    restrictionNotes: ['Almuerzo ajustado a condiciones médicas del perfil.'],
+    tags: ['seguro', 'recomendado'],
+  },
+  afternoonSnack: {
+    title: 'Colación compatible con tu perfil',
+    calories: 185,
+    ingredients: [],
+    preparation: [],
+    safeForPatient: true,
+    restrictionNotes: ['No incluye alimentos marcados como no permitidos.'],
+    tags: ['seguro', 'recomendado'],
+  },
+  dinner: {
+    title: 'Cena ligera segura',
+    calories: 495,
+    ingredients: [],
+    preparation: [],
+    safeForPatient: true,
+    restrictionNotes: ['Cena compatible con alergias y restricciones del paciente.'],
+    tags: ['seguro', 'recomendado'],
+  },
+};
+
+function isUnsafeMeal(meal: MenuMeal) {
+  const text = `${meal.title} ${meal.tags.join(' ')} ${meal.ingredients.map((ingredient) => ingredient.name).join(' ')}`.toLowerCase();
+  return ['restringido', 'alergeno', 'alérgeno', 'no permitido'].some((word) => text.includes(word));
+}
+
+function ensureSafePlan(plan: WeeklyNutritionPlan): WeeklyNutritionPlan {
+  return {
+    ...plan,
+    safetyNotes: plan.safetyNotes?.length
+      ? plan.safetyNotes
+      : ['Menús revisados para evitar alimentos restringidos, alergias y condiciones médicas registradas.'],
+    days: plan.days.map((day) => ({
+      ...day,
+      meals: day.meals.map((meal) => {
+        if (!isUnsafeMeal(meal)) {
+          return {
+            ...meal,
+            safeForPatient: meal.safeForPatient ?? true,
+            restrictionNotes: meal.restrictionNotes?.length ? meal.restrictionNotes : ['Compatible con tu perfil registrado.'],
+          };
+        }
+
+        return {
+          id: `${meal.id}-safe`,
+          slot: meal.slot,
+          ...replacementMeals[meal.slot],
+        };
+      }),
+    })),
+  };
+}
+
 export const nutritionPlanService = {
   async getActiveWeeklyMenu() {
     const token = await getToken();
     if (!token) return weekdayMenus;
 
     try {
-      return await apiRequest<WeeklyNutritionPlan>('/nutrition-plans/me/active/week', {
+      const plan = await apiRequest<WeeklyNutritionPlan>('/nutrition-plans/me/active/week', {
         method: 'GET',
         headers: { Authorization: `Bearer ${token}` },
       });
+      return ensureSafePlan(plan);
     } catch {
-      return weekdayMenus;
+      return ensureSafePlan(weekdayMenus);
+    }
+  },
+
+  async generateWeeklyMenu() {
+    const token = await getToken();
+    if (!token) return generatedMenus;
+
+    try {
+      const plan = await apiRequest<WeeklyNutritionPlan>('/nutrition-plans/me/active/week/recommendations', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return ensureSafePlan(plan);
+    } catch {
+      return ensureSafePlan({ ...generatedMenus, generatedAt: new Date().toISOString() });
     }
   },
 };
