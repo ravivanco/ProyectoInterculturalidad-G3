@@ -29,6 +29,7 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
       .reduce((total, food) => total + food.calories, 0) ?? 0;
     return meals + additional;
   }, [summary?.additionalFoods, summary?.plannedMeals]);
+  const remainingCalories = (summary?.calorieGoal ?? 0) - consumedCalories;
   const progress = useMemo(() => {
     const records = summary?.weightHistory ?? [];
     const last = records.at(-1);
@@ -82,6 +83,24 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
         <Text style={styles.infoTitle}>Calorías consumidas hoy</Text>
         <Text style={styles.calorieValue}>{consumedCalories} kcal</Text>
         <Text style={styles.infoHint}>Se actualiza automáticamente según comidas marcadas y alimentos confirmados.</Text>
+      </View>
+
+      {/* Daily calorie tracking card for HUM-33 */}
+      <View 
+        accessibilityLabel={`Control de balance calórico diario. Meta diaria: ${summary?.calorieGoal ?? 0} kcal. Restantes: ${remainingCalories} kcal. ${remainingCalories < 0 ? 'Superaste tu objetivo diario. Revisa tus registros adicionales.' : 'Aún tienes calorías disponibles para el día.'}`}
+        style={[styles.balanceCard, remainingCalories < 0 ? styles.balanceCardDanger : undefined]}
+      >
+        <View style={styles.balanceRow}>
+          <View>
+            <Text style={styles.infoTitle}>Meta diaria</Text>
+            <Text style={styles.balanceValue}>{summary?.calorieGoal ?? 0} kcal</Text>
+          </View>
+          <View>
+            <Text style={styles.infoTitle}>Restantes</Text>
+            <Text style={[styles.balanceValue, remainingCalories < 0 ? styles.balanceDangerText : undefined]}>{remainingCalories} kcal</Text>
+          </View>
+        </View>
+        <Text style={styles.infoHint}>{remainingCalories < 0 ? 'Superaste tu objetivo diario. Revisa tus registros adicionales.' : 'Aún tienes calorías disponibles para el día.'}</Text>
       </View>
 
       <View style={styles.section}>
@@ -176,6 +195,11 @@ const styles = StyleSheet.create({
   actionText: { color: colors.surface, fontWeight: '900' },
   actions: { flexDirection: 'row', gap: 10, marginTop: 12 },
   blockedText: { color: colors.danger, fontSize: 13, fontWeight: '800', marginTop: 8 },
+  balanceCard: { backgroundColor: colors.primarySoft, borderRadius: 22, gap: 10, padding: 18 },
+  balanceCardDanger: { backgroundColor: '#FEE4E2' },
+  balanceDangerText: { color: colors.danger },
+  balanceRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  balanceValue: { color: colors.text, fontSize: 22, fontWeight: '900', marginTop: 4 },
   container: { backgroundColor: colors.background, flexGrow: 1, gap: 20, padding: 24, paddingTop: 56 },
   header: { gap: 8 },
   infoCard: { backgroundColor: colors.primarySoft, borderRadius: 20, gap: 6, padding: 16 },
