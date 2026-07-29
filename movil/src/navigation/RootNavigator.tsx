@@ -5,6 +5,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { LoginScreen } from '../screens/auth/LoginScreen';
 import { RegisterScreen } from '../screens/auth/RegisterScreen';
 import { HomeScreen } from '../screens/HomeScreen';
+import { WeeklyMenuScreen } from '../screens/plan/WeeklyMenuScreen';
 import { getProfileCompleted, getToken } from '../services/tokenStorage';
 import { colors } from '../theme/colors';
 import type { RootStackParamList } from './types';
@@ -31,6 +32,7 @@ export function RootNavigator() {
       <Stack.Screen component={RegisterScreen} name="Register" />
       <Stack.Screen component={OnboardingNavigator} name="Onboarding" />
       <Stack.Screen component={HomeScreen} name="Home" />
+      <Stack.Screen component={WeeklyMenuScreen} name="WeeklyMenu" />
     </Stack.Navigator>
   );
 }
