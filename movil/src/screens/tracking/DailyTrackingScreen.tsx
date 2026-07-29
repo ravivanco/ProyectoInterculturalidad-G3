@@ -80,7 +80,7 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
     }
   };
 
-  const addAdditionalFood = async () => {
+  const confirmAdditionalFood = async () => {
     try {
       const nextSummary = await trackingService.addAdditionalFood({
         name: additionalName,
@@ -96,6 +96,14 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
     } catch (error) {
       Alert.alert('No se pudo registrar', error instanceof Error ? error.message : 'Revisa los datos ingresados.');
     }
+  };
+
+  const discardAdditionalFood = () => {
+    setAdditionalName('');
+    setAdditionalCalories('');
+    setAdditionalImageUri(undefined);
+    setEstimatedFood(undefined);
+    Alert.alert('Consumo descartado', 'El alimento no impactará tu balance diario.');
   };
 
   const estimateAdditionalFood = async () => {
@@ -231,7 +239,18 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
               <Text style={styles.infoHint}>Proteína {estimatedFood.protein} g · Carbohidratos {estimatedFood.carbs} g · Grasa {estimatedFood.fat} g</Text>
             </View>
           ) : undefined}
-          <PrimaryButton disabled={!additionalName.trim() || !additionalCalories.trim()} onPress={addAdditionalFood} title="Registrar alimento" />
+          {estimatedFood ? (
+            <View style={styles.actions}>
+              <Pressable onPress={confirmAdditionalFood} style={styles.confirmButton}>
+                <Text style={styles.actionText}>Confirmar consumo</Text>
+              </Pressable>
+              <Pressable onPress={discardAdditionalFood} style={styles.discardButton}>
+                <Text style={styles.actionText}>Descartar</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <Text style={styles.infoHint}>Estima el alimento antes de confirmar su consumo.</Text>
+          )}
         </View>
         {(summary?.additionalFoods ?? []).map((food) => (
           <View key={food.id} style={styles.additionalFoodCard}>
@@ -351,6 +370,8 @@ const styles = StyleSheet.create({
   chartLabel: { color: colors.muted, fontSize: 11, fontWeight: '800' },
   calorieCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 22, borderWidth: 1, gap: 8, padding: 18 },
   calorieValue: { color: colors.primary, fontSize: 34, fontWeight: '900' },
+  confirmButton: { alignItems: 'center', backgroundColor: colors.primary, borderRadius: 12, flex: 1, paddingVertical: 12 },
+  discardButton: { alignItems: 'center', backgroundColor: colors.danger, borderRadius: 12, flex: 1, paddingVertical: 12 },
   kicker: { color: colors.primary, fontSize: 13, fontWeight: '900', letterSpacing: 1, textTransform: 'uppercase' },
   mealCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 18, borderWidth: 1, padding: 16 },
   mealCard_completed: { borderColor: colors.primary },
