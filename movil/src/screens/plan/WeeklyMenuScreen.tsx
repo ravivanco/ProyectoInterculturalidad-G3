@@ -65,7 +65,7 @@ export function WeeklyMenuScreen({ navigation }: NativeStackScreenProps<RootStac
           {isPlanBlocked(plan) ? (
             <View style={styles.blockedCard}>
               <Text style={styles.blockedTitle}>Mi Plan bloqueado</Text>
-              <Text style={styles.blockedText}>{plan?.lockReason ?? 'Tu nutricionista a?n debe activar el plan nutricional.'}</Text>
+              <Text style={styles.blockedText}>{plan?.lockReason ?? `Disponible desde ${plan?.startDate ?? 'la fecha indicada por tu nutricionista'}.`}</Text>
             </View>
           ) : undefined}
 
