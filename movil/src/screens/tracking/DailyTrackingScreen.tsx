@@ -216,6 +216,21 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
         ) : undefined}
       </View>
 
+      <View style={styles.macroCard}>
+        <Text style={styles.infoTitle}>Distribución de macronutrientes</Text>
+        <Text style={styles.infoHint}>Objetivo diario calculado desde tu evaluación clínica.</Text>
+        {[
+          { label: 'Proteínas', grams: calorieDashboard?.proteinGrams ?? 0 },
+          { label: 'Carbohidratos', grams: calorieDashboard?.carbsGrams ?? 0 },
+          { label: 'Grasas', grams: calorieDashboard?.fatGrams ?? 0 },
+        ].map((macro) => (
+          <View key={macro.label} style={styles.macroRow}>
+            <Text style={styles.macroLabel}>{macro.label}</Text>
+            <Text style={styles.macroValue}>{macro.grams} g</Text>
+          </View>
+        ))}
+      </View>
+
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Comidas del plan</Text>
         {visibleMeals.map((meal) => (
@@ -420,6 +435,10 @@ const styles = StyleSheet.create({
   confirmButton: { alignItems: 'center', backgroundColor: colors.primary, borderRadius: 12, flex: 1, paddingVertical: 12 },
   discardButton: { alignItems: 'center', backgroundColor: colors.danger, borderRadius: 12, flex: 1, paddingVertical: 12 },
   kicker: { color: colors.primary, fontSize: 13, fontWeight: '900', letterSpacing: 1, textTransform: 'uppercase' },
+  macroCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 22, borderWidth: 1, gap: 10, padding: 18 },
+  macroLabel: { color: colors.text, fontSize: 15, fontWeight: '800' },
+  macroRow: { alignItems: 'center', borderTopColor: colors.border, borderTopWidth: 1, flexDirection: 'row', justifyContent: 'space-between', paddingTop: 10 },
+  macroValue: { color: colors.primary, fontSize: 18, fontWeight: '900' },
   mealCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 18, borderWidth: 1, padding: 16 },
   mealCard_completed: { borderColor: colors.primary },
   mealCard_pending: { borderColor: colors.border },
