@@ -9,7 +9,6 @@ import uploadRoutes from './uploadRoutes';
 import recipeGeneratorRoutes from './recipeGeneratorRoutes';
 import trackingRoutes from './trackingRoutes';
 import visionRoutes from './visionRoutes';
-import dashboardNutritionistRoutes from './dashboardNutritionistRoutes';
 
 const router = Router();
 
@@ -23,6 +22,5 @@ router.use('/uploads', uploadRoutes);
 router.use('/recipe-generator', recipeGeneratorRoutes);
 router.use('/tracking', trackingRoutes);
 router.use('/vision', visionRoutes);
-router.use('/dashboard', dashboardNutritionistRoutes);
 
 export default router;
