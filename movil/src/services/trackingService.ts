@@ -44,6 +44,7 @@ export const trackingService = {
     const meal = plannedMeals.find((item) => item.id === mealId);
     if (!meal) throw new Error('Comida no encontrada.');
     if (meal.date !== todayIso) throw new Error('Solo puedes marcar comidas del día actual.');
+    if (meal.status === status) return cloneSummary();
     meal.status = status;
     return cloneSummary();
   },
