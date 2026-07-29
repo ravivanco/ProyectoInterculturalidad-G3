@@ -2,6 +2,7 @@ import sequelize from '../config/database';
 import User from './User';
 import PatientProfile from './PatientProfile';
 import NutritionistProfile from './NutritionistProfile';
+export { default as Exercise } from './Exercise';
 
 // Set up associations
 User.hasOne(PatientProfile, { foreignKey: 'userId', as: 'patientProfile' });
