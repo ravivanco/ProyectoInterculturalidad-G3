@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { PrimaryButton } from '../../components/PrimaryButton';
 import { mealSlotLabels } from '../../constants/mealSlots';
@@ -13,6 +13,7 @@ const todayIso = new Date().toISOString().slice(0, 10);
 
 export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'DailyTracking'>) {
   const [summary, setSummary] = useState<DailyTrackingSummary>();
+  const [weight, setWeight] = useState('');
 
   useEffect(() => {
     trackingService.getDailySummary().then(setSummary);
@@ -28,6 +29,18 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
 
     const nextSummary = await trackingService.updateMealStatus(meal.id, status);
     setSummary(nextSummary);
+  };
+
+  const saveWeight = async () => {
+    const parsedWeight = Number(weight.replace(',', '.'));
+    try {
+      const nextSummary = await trackingService.saveWeight(parsedWeight);
+      setSummary(nextSummary);
+      setWeight('');
+      Alert.alert('Peso guardado', 'Tu peso diario fue registrado correctamente.');
+    } catch (error) {
+      Alert.alert('Dato inválido', error instanceof Error ? error.message : 'Ingresa un peso válido.');
+    }
   };
 
   return (
@@ -49,6 +62,22 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
         {visibleMeals.map((meal) => (
           <MealTrackingCard meal={meal} key={meal.id} onChange={changeMealStatus} />
         ))}
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Registro de peso diario</Text>
+        <View style={styles.weightCard}>
+          <Text style={styles.infoHint}>Guarda tu peso una vez al día para seguir tu evolución.</Text>
+          <TextInput
+            keyboardType="decimal-pad"
+            onChangeText={setWeight}
+            placeholder="Ej. 72.5"
+            placeholderTextColor={colors.muted}
+            style={styles.input}
+            value={weight}
+          />
+          <PrimaryButton disabled={!weight.trim()} onPress={saveWeight} title="Guardar peso" />
+        </View>
       </View>
 
       <PrimaryButton onPress={() => navigation.goBack()} title="Volver al inicio" />
@@ -97,6 +126,7 @@ const styles = StyleSheet.create({
   infoHint: { color: colors.primaryDark, fontSize: 13, lineHeight: 19 },
   infoText: { color: colors.text, fontSize: 17, fontWeight: '900' },
   infoTitle: { color: colors.primaryDark, fontSize: 12, fontWeight: '900', textTransform: 'uppercase' },
+  input: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 14, borderWidth: 1, color: colors.text, fontSize: 18, fontWeight: '800', paddingHorizontal: 14, paddingVertical: 12 },
   kicker: { color: colors.primary, fontSize: 13, fontWeight: '900', letterSpacing: 1, textTransform: 'uppercase' },
   mealCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 18, borderWidth: 1, padding: 16 },
   mealCardDisabled: { opacity: 0.65 },
@@ -110,4 +140,5 @@ const styles = StyleSheet.create({
   sectionTitle: { color: colors.text, fontSize: 20, fontWeight: '900' },
   subtitle: { color: colors.muted, fontSize: 16, lineHeight: 22 },
   title: { color: colors.text, fontSize: 32, fontWeight: '900' },
+  weightCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 18, borderWidth: 1, gap: 12, padding: 16 },
 });
