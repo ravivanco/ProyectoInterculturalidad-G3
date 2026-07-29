@@ -14,7 +14,7 @@ const options: swaggerJSDoc.Options = {
       title: 'DK-FITT API - Sitio B (Quito)',
       version: '1.0.0',
       description:
-        'API for DK-FITT Sitio B (Quito) supporting authentication, patient profiling and dish management.',
+        'API for DK-FITT Sitio B (Quito) — auth, patients, foods, tracking S4, dashboard S5.',
     },
     servers: [
       {
