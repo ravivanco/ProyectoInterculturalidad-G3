@@ -8,6 +8,7 @@ import exerciseRoutes from "./routes/exercise.routes";
 import additionalIntakeRoutes from "./routes/additionalIntake.routes";
 import planExerciseRoutes from "./routes/planExercise.routes";
 import exerciseTrackingRoutes from "./routes/exerciseTracking.routes";
+import alertRoutes from "./routes/alert.routes";
 
 import { errorMiddleware } from "./middleware/error.middleware";
 
@@ -18,6 +19,7 @@ app.use(helmet());
 app.use(morgan("dev"));
 
 app.use(express.json());
+
 app.use(
   express.urlencoded({
     extended: true,
@@ -48,10 +50,16 @@ app.use(
   exerciseTrackingRoutes
 );
 
+// Sistema de alertas automáticas
+app.use(
+  "/api/alerts",
+  alertRoutes
+);
+
 // Ruta de salud
 app.use("/", healthRoutes);
 
-// Debe ir al final
+// Middleware de errores: siempre debe ir al final
 app.use(errorMiddleware);
 
 export default app;
