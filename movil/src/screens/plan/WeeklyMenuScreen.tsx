@@ -64,6 +64,7 @@ export function WeeklyMenuScreen({ navigation }: NativeStackScreenProps<RootStac
                   <MealSlotCard
                     calories={meal?.calories}
                     key={slot}
+                    onPress={meal ? () => navigation.navigate('MealDetail', { dayId: selectedDay.id, mealId: meal.id }) : undefined}
                     slot={slot}
                     tags={meal?.tags ?? []}
                     title={meal?.title ?? 'Pendiente de asignar'}
@@ -87,11 +88,12 @@ type MealSlotCardProps = {
   title: string;
   calories?: number;
   tags: string[];
+  onPress?: () => void;
 };
 
-function MealSlotCard({ slot, title, calories, tags }: MealSlotCardProps) {
+function MealSlotCard({ slot, title, calories, tags, onPress }: MealSlotCardProps) {
   return (
-    <View style={styles.mealRow}>
+    <Pressable disabled={!onPress} onPress={onPress} style={({ pressed }) => [styles.mealRow, pressed ? styles.mealRowPressed : undefined]}>
       <View style={styles.mealBadge}>
         <Text style={styles.mealBadgeText}>{mealSlotLabels[slot].slice(0, 2)}</Text>
       </View>
@@ -100,7 +102,8 @@ function MealSlotCard({ slot, title, calories, tags }: MealSlotCardProps) {
         <Text style={styles.mealTitle}>{title}</Text>
         <Text style={styles.mealMeta}>{calories ? `${calories} kcal` : 'Sin calorías registradas'}{tags.length ? ` · ${tags.join(', ')}` : ''}</Text>
       </View>
-    </View>
+      {onPress ? <Text style={styles.mealAction}>Ver receta</Text> : undefined}
+    </Pressable>
   );
 }
 
@@ -138,8 +141,10 @@ const styles = StyleSheet.create({
   mealContent: { flex: 1 },
   mealMeta: { color: colors.muted, fontSize: 13, marginTop: 4 },
   mealRow: { alignItems: 'center', backgroundColor: colors.primarySoft, borderRadius: 16, flexDirection: 'row', gap: 12, padding: 14 },
+  mealRowPressed: { opacity: 0.78 },
   mealSlot: { color: colors.primaryDark, fontSize: 12, fontWeight: '900', letterSpacing: 0.4, textTransform: 'uppercase' },
   mealTitle: { color: colors.text, fontSize: 16, fontWeight: '800' },
+  mealAction: { color: colors.primaryDark, fontSize: 12, fontWeight: '900' },
   subtitle: { color: colors.muted, fontSize: 16, lineHeight: 22 },
   summary: { backgroundColor: colors.primaryDark, borderRadius: 20, padding: 18 },
   summaryText: { color: colors.primarySoft, fontSize: 14, marginTop: 5 },
