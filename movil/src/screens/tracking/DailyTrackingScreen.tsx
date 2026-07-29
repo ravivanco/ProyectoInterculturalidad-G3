@@ -6,6 +6,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 
 import { PrimaryButton } from '../../components/PrimaryButton';
 import { mealSlotLabels } from '../../constants/mealSlots';
 import type { RootStackParamList } from '../../navigation/types';
+import { calorieDashboardService, type CalorieDashboard } from '../../services/calorieDashboardService';
 import { mealReminderService } from '../../services/mealReminderService';
 import { trackingService } from '../../services/trackingService';
 import { colors } from '../../theme/colors';
@@ -28,9 +29,11 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
   const [estimatedFood, setEstimatedFood] = useState<{ calories: number; protein: number; carbs: number; fat: number }>();
   const [remindersEnabled, setRemindersEnabled] = useState(false);
   const [reminderSummary, setReminderSummary] = useState<Array<{ label: string; time: string }>>([]);
+  const [calorieDashboard, setCalorieDashboard] = useState<CalorieDashboard>();
 
   useEffect(() => {
     trackingService.getDailySummary().then(setSummary);
+    calorieDashboardService.getDashboard().then(setCalorieDashboard);
   }, []);
 
   const visibleMeals = useMemo(() => summary?.plannedMeals ?? [], [summary?.plannedMeals]);
@@ -53,8 +56,9 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
       .reduce((total, food) => total + food.calories, 0) ?? 0,
     [summary?.additionalFoods],
   );
-  const remainingCalories = (summary?.calorieGoal ?? 0) - consumedCalories;
-  const calorieProgress = summary?.calorieGoal ? Math.min(consumedCalories / summary.calorieGoal, 1) : 0;
+  const calorieGoal = calorieDashboard?.calorieGoal ?? summary?.calorieGoal ?? 0;
+  const remainingCalories = calorieGoal - consumedCalories;
+  const calorieProgress = calorieGoal ? Math.min(consumedCalories / calorieGoal, 1) : 0;
   const progress = useMemo(() => {
     const records = summary?.weightHistory ?? [];
     const last = records.at(-1);
@@ -187,13 +191,13 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
 
       {/* Daily calorie tracking card for HUM-33 */}
       <View
-        accessibilityLabel={`Control de balance calórico diario. Meta diaria: ${summary?.calorieGoal ?? 0} kcal. Restantes: ${remainingCalories} kcal. ${remainingCalories < 0 ? 'Superaste tu objetivo diario. Revisa tus registros adicionales.' : 'Aún tienes calorías disponibles para el día.'}`}
+        accessibilityLabel={`Control de balance calórico diario. Meta diaria: ${calorieGoal} kcal. Restantes: ${remainingCalories} kcal. ${remainingCalories < 0 ? 'Superaste tu objetivo diario. Revisa tus registros adicionales.' : 'Aún tienes calorías disponibles para el día.'}`}
         style={[styles.balanceCard, remainingCalories < 0 ? styles.balanceCardDanger : undefined]}
       >
         <View style={styles.balanceRow}>
           <View>
             <Text style={styles.infoTitle}>Meta diaria</Text>
-            <Text style={styles.balanceValue}>{summary?.calorieGoal ?? 0} kcal</Text>
+            <Text style={styles.balanceValue}>{calorieGoal} kcal</Text>
           </View>
           <View>
             <Text style={styles.infoTitle}>Restantes</Text>
@@ -207,6 +211,9 @@ export function DailyTrackingScreen({ navigation }: NativeStackScreenProps<RootS
           {remainingCalories < 0 ? `Exceso de ${Math.abs(remainingCalories)} kcal` : `${remainingCalories} kcal disponibles`}
         </Text>
         <Text style={styles.infoHint}>{remainingCalories < 0 ? 'Superaste tu objetivo diario. Revisa tus registros adicionales.' : 'Aún tienes calorías disponibles para el día.'}</Text>
+        {!calorieDashboard?.hasClinicalEvaluation ? (
+          <Text style={styles.warningText}>Necesitas una evaluación clínica para calcular tu meta personalizada.</Text>
+        ) : undefined}
       </View>
 
       <View style={styles.section}>
@@ -445,4 +452,5 @@ const styles = StyleSheet.create({
   subtitle: { color: colors.muted, fontSize: 16, lineHeight: 22 },
   title: { color: colors.text, fontSize: 32, fontWeight: '900' },
   weightCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 18, borderWidth: 1, gap: 12, padding: 16 },
+  warningText: { color: colors.danger, fontSize: 13, fontWeight: '900', lineHeight: 19 },
 });
