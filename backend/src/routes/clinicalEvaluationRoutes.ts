@@ -136,6 +136,88 @@ router.post(
  *         description: Error interno del servidor
  */
 
+/**
+ * @openapi
+ * /api/clinical-evaluations/patient/{id}/trends:
+ *   get:
+ *     summary: Tendencias clínicas del paciente (Sprint 6 — PG3-358 / HU09)
+ *     description: >
+ *       Series temporales de peso, IMC y meta calórica a partir del historial de evaluaciones.
+ *       Soporte e-Government / EPIC-WEB-03 (visualización de evolución para el servicio preventivo).
+ *     tags: [Clinical Evaluations, API-S6 Sprint 6]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del paciente
+ *     responses:
+ *       200:
+ *         description: Tendencias obtenidas correctamente
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *       403:
+ *         description: Acceso permitido solo para nutricionistas
+ *       404:
+ *         description: Sin evaluaciones para el paciente
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.get(
+  '/patient/:id/trends',
+  authGuard,
+  async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+
+      if (req.user?.role !== 'nutricionista') {
+        res.status(403).json({
+          message: 'Forbidden - only nutritionists can access clinical trends',
+        });
+        return;
+      }
+
+      const evaluations = await ClinicalEvaluation.findAll({
+        where: { patientId: Number(id) },
+        order: [['createdAt', 'ASC']],
+      });
+
+      if (evaluations.length === 0) {
+        res.status(404).json({
+          message: 'No clinical evaluations found for this patient',
+          data: { patientId: Number(id), trends: null },
+        });
+        return;
+      }
+
+      const toPoint = (e: ClinicalEvaluation, field: 'weight' | 'bmi' | 'calories') => ({
+        date: e.createdAt.toISOString(),
+        value: e[field],
+      });
+
+      res.status(200).json({
+        message: 'Clinical evaluation trends retrieved successfully.',
+        data: {
+          patientId: Number(id),
+          evaluationCount: evaluations.length,
+          trends: {
+            weight: evaluations.map((e) => toPoint(e, 'weight')),
+            bmi: evaluations.map((e) => toPoint(e, 'bmi')),
+            calories: evaluations.map((e) => toPoint(e, 'calories')),
+          },
+        },
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: 'Error retrieving clinical evaluation trends.',
+      });
+    }
+  }
+);
+
 router.get(
   '/patient/:id',
   authGuard,
