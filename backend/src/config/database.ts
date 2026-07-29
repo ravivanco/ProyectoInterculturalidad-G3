@@ -1,3 +1,4 @@
+// API-S1 — Conexión PostgreSQL con Sequelize (Bryan Gualpa)
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 
