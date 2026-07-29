@@ -8,6 +8,7 @@ const weekdayMenus: WeeklyNutritionPlan = {
   status: 'active',
   weekLabel: 'Semana actual',
   energyTarget: 1850,
+  startDate: new Date().toISOString().slice(0, 10),
   safetyNotes: ['Menú ajustado a alergias, preferencias y restricciones registradas.'],
   days: [
     {
