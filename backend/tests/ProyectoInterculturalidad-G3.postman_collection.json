@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "DK-FITT - Sitio B (Quito) API",
-    "description": "Postman collection for testing the authentication and patient endpoints of DK-FITT Sitio B.",
+    "description": "Postman collection DK-FITT Sitio B — Auth, patients, Sprint 4 API-S4 tracking (PG3-347). Importar entorno: DK-FITT-S4.postman_environment.json",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -275,6 +275,109 @@
             "description": "Retrieves details of a specific patient. Nutritionist can access any patient. Patient can only access their own."
           },
           "response": []
+        }
+      ]
+    },
+    {
+      "name": "Sprint 4 — API-S4 Tracking (PG3-347)",
+      "description": "Flujo: marcar comida → resumen → vision → consumo extra → resumen actualizado.",
+      "item": [
+        {
+          "name": "0 — Login paciente (guarda token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.success && j.data) {",
+                  "  pm.environment.set('patientAccessToken', j.data.accessToken);",
+                  "  if (j.data.user && j.data.user.id) pm.environment.set('patientUserId', j.data.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"paciente.demo@g3.local\",\n  \"password\": \"Demo1234!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "1 — Marcar comida (POST /tracking/meals)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{patientAccessToken}}" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mealType\": \"almuerzo\",\n  \"description\": \"Plan cumplido\",\n  \"calories\": 420,\n  \"loggedAt\": \"2026-07-27T13:00:00.000Z\"\n}"
+            },
+            "url": "{{baseUrl}}/api/tracking/meals"
+          }
+        },
+        {
+          "name": "2 — Resumen (GET /tracking/summary)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{patientAccessToken}}" }] },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/tracking/summary?from=2026-07-23&to=2026-07-27"
+          }
+        },
+        {
+          "name": "3 — Analizar imagen (POST /vision/food-image)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.success && j.data) {",
+                  "  pm.environment.set('estimatedExtraCalories', String(j.data.estimatedCalories || 220));",
+                  "  pm.environment.set('estimatedFoodDescription', j.data.description || 'Extra');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{patientAccessToken}}" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"imageBase64\": \"iVBORw0KGgo=\",\n  \"mimeType\": \"image/jpeg\"\n}"
+            },
+            "url": "{{baseUrl}}/api/vision/food-image"
+          }
+        },
+        {
+          "name": "4 — Confirmar extra (POST /tracking/extra-consumptions)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{patientAccessToken}}" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"{{estimatedFoodDescription}}\",\n  \"calories\": {{estimatedExtraCalories}},\n  \"loggedAt\": \"2026-07-27T15:30:00.000Z\"\n}"
+            },
+            "url": "{{baseUrl}}/api/tracking/extra-consumptions"
+          }
+        },
+        {
+          "name": "5 — Resumen actualizado (GET /tracking/summary)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{patientAccessToken}}" }] },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/tracking/summary?from=2026-07-23&to=2026-07-27"
+          }
         }
       ]
     }
