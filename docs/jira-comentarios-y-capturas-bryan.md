@@ -243,3 +243,81 @@ Evidencias_Bryan_Gualpa/
 3. En Jira: abrir cada subtarea → pegar comentario → adjuntar captura con **+**
 4. Marcar Done las que falten
 5. Llevar mañana: carpeta de capturas + Word guía defensa + enlace Notion
+
+---
+
+# SPRINT 4 — API-S4 (Bryan Gualpa — PG3-341 a PG3-346)
+
+Rama: `feature/API-S4-tracking-comidas-ejercicios-gemini-vision`  
+Base GitHub: https://github.com/ravivanco/ProyectoInterculturalidad-G3/tree/feature/API-S4-tracking-comidas-ejercicios-gemini-vision
+
+| Subtarea Jira | Nombre archivo captura | Qué capturar | Comentario Jira (pegar en Activity) |
+|---------------|------------------------|--------------|-------------------------------------|
+| PG3-341 | `S4-PG3-341-tracking-comidas-vscode.png` | `backend/src/routes/trackingRoutes.ts` POST/GET `/meals` | Se implementó registro e historial de ingestas del paciente (POST/GET `/api/tracking/meals`) con `meal_logs` y JWT. Commit en rama `feature/API-S4-tracking-comidas-ejercicios-gemini-vision`. |
+| PG3-341 | `S4-PG3-341-swagger-meals.png` | Swagger `/api-docs` sección Tracking S4 — meals | Mismo endpoint documentado en OpenAPI; prueba 201 con token paciente. |
+| PG3-342 | `S4-PG3-342-tracking-ejercicios-vscode.png` | Mismo archivo — bloque `/exercises` | POST/GET `/api/tracking/exercises` para sesiones realizadas (PG3-342), modelo `ExerciseLog`. |
+| PG3-342 | `S4-PG3-342-postman-ejercicio-201.png` | Postman POST exercises respuesta 201 | Evidencia de registro de ejercicio con `exerciseName`, `durationMinutes`, `completedAt`. |
+| PG3-343 | `S4-PG3-343-peso-vscode.png` | Bloque `/weight` en trackingRoutes | Registro y consulta de peso (`weight_logs`) — PG3-343. |
+| PG3-343 | `S4-PG3-343-peso-json.png` | Respuesta GET `/api/tracking/weight` | Curva/listado ordenado por `loggedAt`. |
+| PG3-344 | `S4-PG3-344-consumo-extra-vscode.png` | Bloque `/extra-consumptions` | Consumos fuera del menú con calorías e `imageUrl` opcional — PG3-344. |
+| PG3-344 | `S4-PG3-344-consumo-extra-postman.png` | POST extra-consumptions 201 | Cuerpo JSON con description, calories, loggedAt. |
+| PG3-345 | `S4-PG3-345-gemini-vscode.png` | `backend/src/routes/visionRoutes.ts` | POST `/api/vision/food-image` — Gemini Vision o modo demo si no hay API key — PG3-345. |
+| PG3-345 | `S4-PG3-345-gemini-respuesta.png` | JSON con estimatedCalories | Respuesta `{ description, estimatedCalories, confidence }`. |
+| PG3-346 | `S4-PG3-346-summary-vscode.png` | GET `/tracking/summary` en trackingRoutes | Resumen agregado (conteos, calorías extra, último peso) — PG3-346. |
+| PG3-346 | `S4-PG3-346-summary-swagger.png` | Swagger summary + query from/to | Filtros de periodo para dashboards web/móvil. |
+| PG3-339 (padre) | `S4-PG3-339-github-rama-api-s4.png` | GitHub → Commits rama API-S4 | Historial commits Bryan: modelos, tracking, vision, router. |
+| PG3-340 (contenedor) | `S4-PG3-340-jira-tablero-done.png` | Jira subtareas 341–346 en Done | Vista tablero Sitio B Sprint 4. |
+
+**Nota:** PG3-347 (Swagger Sprint 4 completo) suele ir con **Brandon**; tú puedes adjuntar `S4-PG3-347-swagger-tracking-vision.png` de `/api-docs` mostrando tags **Tracking S4** y **Vision S4** como apoyo.
+
+---
+
+# SPRINT 5 — API-S5 (Bryan Gualpa — PG3-350, 351, 352, 353, 354, 355, 495)
+
+Rama: `feature/API-S5-dashboard-nutricionista` (incluye commits de API-S4)  
+GitHub: https://github.com/ravivanco/ProyectoInterculturalidad-G3/tree/feature/API-S5-dashboard-nutricionista
+
+| Subtarea Jira | Nombre archivo captura | Qué capturar | Comentario Jira |
+|---------------|------------------------|--------------|-----------------|
+| PG3-350 | `S5-PG3-350-modelo-alertas-vscode.png` | `backend/src/models/PatientAlert.ts` + migración S5 | Modelo de alertas de adherencia (`patient_alerts`) — PG3-350. |
+| PG3-351 | `S5-PG3-351-adherence-service.png` | `backend/src/services/adherenceService.ts` | Servicio `computeAdherence` (KPI alimentario/físico/global) — PG3-351. |
+| PG3-351 | `S5-PG3-351-adherence-json.png` | GET `/api/dashboard/nutritionist/adherence?patientId=` | Respuesta JSON `scorePercent`, meals/exercises logged. |
+| PG3-352 | `S5-PG3-352-alertas-evaluate-vscode.png` | POST `/nutritionist/alerts/evaluate` en dashboardNutritionistRoutes | Reglas automáticas (adherencia &lt;60%, consumo extra, sin comidas hoy) — PG3-352. |
+| PG3-352 | `S5-PG3-352-alertas-creadas-postman.png` | Respuesta 201 con array `created` | Alertas generadas en BD. |
+| PG3-353 | `S5-PG3-353-dashboard-nutricionista.png` | GET `/api/dashboard/nutritionist` | Panel consolidado adherencia + alertas abiertas — PG3-353. |
+| PG3-354 | `S5-PG3-354-listado-alertas.png` | GET `/api/dashboard/nutritionist/alerts` | Flags/estado `acknowledged` — PG3-354. |
+| PG3-355 | `S5-PG3-355-filtros-query.png` | Swagger o Postman con `from`, `to`, `adherenceType` | Filtros de dashboard — PG3-355. |
+| PG3-495 | `S5-PG3-495-adherence-detail.png` | GET `/api/dashboard/nutritionist/adherence/detail` | Extensión S5: desglose alimentaria/física/global — PG3-495. |
+| PG3-554 | `S5-PG3-554-swagger-s5.png` | `/api-docs` tags Dashboard S5 + Tracking S4 | Documentación OpenAPI Sprint 5 (compartida con Brandon). |
+| PG3-348 (historia) | `S5-PG3-348-github-commits.png` | GitHub commits rama API-S5 | Trazabilidad API-S5 dashboard nutricionista. |
+| PG3-349 (contenedor) | `S5-PG3-349-jira-done.png` | Jira subtareas 350–355, 495 Done | Evidencia gestión Sprint 5 Sitio B. |
+
+---
+
+## Carpeta recomendada (S4 + S5)
+
+```
+Desktop\Evidencias_Bryan_Gualpa\Sprint4\
+Desktop\Evidencias_Bryan_Gualpa\Sprint5\
+```
+
+## Comandos locales (demo defensa)
+
+```powershell
+cd backend
+npm run dev
+# Swagger: http://localhost:3000/api-docs
+# Migrar: npm run db:migrate
+```
+
+## Commits realizados (referencia)
+
+- **API-S4:** `feat(API-S4): migraciones y modelos…` → tracking routes → vision → router.
+- **API-S5:** adherencia + alertas → dashboard routes → swagger.
+
+Push (cuando tengas red):
+
+```powershell
+git push -u origin feature/API-S4-tracking-comidas-ejercicios-gemini-vision
+git push -u origin feature/API-S5-dashboard-nutricionista
+```
