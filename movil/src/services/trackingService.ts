@@ -83,4 +83,18 @@ export const trackingService = {
 
     return cloneSummary();
   },
+
+  async estimateAdditionalFood(payload: { name: string; imageUri?: string }) {
+    const normalizedName = payload.name.trim() || 'Alimento adicional';
+    const baseCalories = payload.imageUri ? 320 : 240;
+    const calories = normalizedName.toLowerCase().includes('postre') ? baseCalories + 180 : baseCalories;
+
+    return {
+      name: normalizedName,
+      calories,
+      protein: Math.round(calories * 0.18 / 4),
+      carbs: Math.round(calories * 0.52 / 4),
+      fat: Math.round(calories * 0.30 / 9),
+    };
+  },
 };
