@@ -13,6 +13,7 @@ import alertRoutes from "./routes/alert.routes";
 import dishRoutes from "./routes/dishRoutes";
 import nutritionPlanWeekRoutes from "./routes/nutritionPlanWeekRoutes";
 import weekMenuRoutes from "./routes/weekMenuRoutes";
+import dashboardNutritionistRoutes from "./routes/dashboardNutritionistRoutes";
 
 import { errorMiddleware } from "./middleware/error.middleware";
 import { setupSwagger } from "./config/swagger";
@@ -43,7 +44,7 @@ app.use(
   additionalIntakeRoutes
 );
 
-// Ejercicios asignados al plan
+// Ejercicios asignados a una semana y día del plan
 app.use(
   "/api/nutrition-plans/weeks/:weekId/days/:day/exercises",
   planExerciseRoutes
@@ -61,13 +62,13 @@ app.use(
   alertRoutes
 );
 
-// Platos
+// Catálogo de platos
 app.use(
   "/api/dishes",
   dishRoutes
 );
 
-// Semanas del plan nutricional
+// Planes nutricionales
 app.use(
   "/api/nutrition-plans",
   nutritionPlanWeekRoutes
@@ -79,14 +80,22 @@ app.use(
   weekMenuRoutes
 );
 
-// Rutas generales
+// Dashboard del nutricionista
+app.use(
+  "/api/dashboard",
+  dashboardNutritionistRoutes
+);
+
+// Ruta de salud
 app.use("/", healthRoutes);
+
+// Rutas generales de la API
 app.use("/api", routes);
 
-// Swagger
+// Documentación Swagger
 setupSwagger(app);
 
-// Middleware de errores: siempre al final
+// Middleware de errores: siempre debe ir al final
 app.use(errorMiddleware);
 
 export default app;
