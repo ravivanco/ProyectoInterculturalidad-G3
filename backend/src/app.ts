@@ -16,10 +16,21 @@ app.use(helmet());
 app.use(morgan("dev"));
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
 
-app.use("/api/exercises", exerciseRoutes);
-app.use("/api/additional-intake", additionalIntakeRoutes);
+app.use(
+  "/api/exercises",
+  exerciseRoutes
+);
+
+app.use(
+  "/api/additional-intake",
+  additionalIntakeRoutes
+);
 
 app.use("/", healthRoutes);
 
