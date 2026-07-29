@@ -12,14 +12,25 @@ const options: swaggerJSDoc.Options = {
     openapi: '3.0.0',
     info: {
       title: 'DK-FITT API - Sitio B (Quito)',
-      version: '1.0.0',
+      version: '1.6.0',
       description:
-        'API for DK-FITT Sitio B (Quito) — auth, patients, foods, tracking S4, dashboard S5.',
+        'API DK-FITT Sitio B (Quito) — Sprints 1–6. Auth, evaluaciones clínicas, tracking S4, dashboard S5, '
+        + 'tendencias clínicas y cierre API-S6 (EPIC-API-06). Documentación e-Government: contrato público del servicio digital.',
     },
+    tags: [
+      { name: 'Clinical Evaluations', description: 'Evaluaciones clínicas S2 y tendencias S6 (PG3-358)' },
+      { name: 'API-S6 Sprint 6', description: 'Cierre producción, Swagger y endpoints Sprint 6' },
+      { name: 'Dashboard S5', description: 'Adherencia y panel nutricionista' },
+      { name: 'Tracking S4', description: 'Seguimiento comidas, ejercicios y visión' },
+    ],
     servers: [
       {
         url: `http://localhost:${PORT}/api`,
         description: 'Development Server',
+      },
+      {
+        url: 'https://dk-fitt-api-g3.onrender.com/api',
+        description: 'Production (Render) — API-S6 PG3-360',
       },
     ],
     components: {
@@ -291,11 +302,12 @@ const options: swaggerJSDoc.Options = {
 const swaggerSpec = swaggerJSDoc(options);
 
 export const setupSwagger = (app: Express): void => {
-  if (process.env.NODE_ENV !== 'production') {
+  const enableInProd = process.env.ENABLE_SWAGGER === 'true';
+  if (process.env.NODE_ENV !== 'production' || enableInProd) {
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
     console.log(`📝 Swagger Docs available at http://localhost:${PORT}/api-docs`);
   } else {
-    console.log('📝 Swagger Docs disabled in production environment');
+    console.log('📝 Swagger Docs disabled in production (set ENABLE_SWAGGER=true on Render if needed)');
   }
 };
 
