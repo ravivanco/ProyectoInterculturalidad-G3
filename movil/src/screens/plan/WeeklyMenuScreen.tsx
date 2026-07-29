@@ -56,6 +56,13 @@ export function WeeklyMenuScreen({ navigation }: NativeStackScreenProps<RootStac
         </View>
       ) : (
         <View>
+          {!plan ? (
+            <View style={styles.emptyPlanCard}>
+              <Text style={styles.emptyPlanTitle}>Sin plan activo</Text>
+              <Text style={styles.emptyPlanText}>Cuando tu nutricionista active un plan, aparecerá aquí.</Text>
+            </View>
+          ) : undefined}
+
           <View style={styles.summary}>
             <Text style={styles.summaryTitle}>{plan?.name}</Text>
             <Text style={styles.summaryText}>{plan?.weekLabel} · Meta {plan?.energyTarget} kcal/día</Text>
@@ -167,6 +174,9 @@ const styles = StyleSheet.create({
   daySelector: { marginHorizontal: -4 },
   dayTitle: { color: colors.text, fontSize: 24, fontWeight: '900' },
   empty: { color: colors.muted, textAlign: 'center' },
+  emptyPlanCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 20, borderWidth: 1, gap: 6, padding: 16 },
+  emptyPlanText: { color: colors.muted, fontSize: 14, lineHeight: 20 },
+  emptyPlanTitle: { color: colors.text, fontSize: 18, fontWeight: '900' },
   generatedText: { color: colors.primarySoft, fontSize: 12, fontWeight: '900', marginTop: 10, textTransform: 'uppercase' },
   header: { gap: 8 },
   kicker: { color: colors.primary, fontSize: 13, fontWeight: '900', letterSpacing: 1, textTransform: 'uppercase' },

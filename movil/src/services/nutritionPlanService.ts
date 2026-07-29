@@ -183,6 +183,20 @@ function ensureSafePlan(plan: WeeklyNutritionPlan): WeeklyNutritionPlan {
 }
 
 export const nutritionPlanService = {
+  async getActivePlan() {
+    const token = await getToken();
+    if (!token) return weekdayMenus;
+
+    try {
+      return await apiRequest<WeeklyNutritionPlan>('/nutrition-plans/me/active', {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch {
+      return weekdayMenus;
+    }
+  },
+
   async getActiveWeeklyMenu() {
     const token = await getToken();
     if (!token) return weekdayMenus;
