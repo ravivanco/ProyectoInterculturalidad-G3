@@ -8,6 +8,7 @@ import type { RootStackParamList } from '../../navigation/types';
 import { nutritionPlanService } from '../../services/nutritionPlanService';
 import { colors } from '../../theme/colors';
 import type { MealSlot, MenuDay, WeeklyNutritionPlan } from '../../types/nutritionPlan';
+import { getPlanStateLabel, isPlanBlocked } from '../../utils/planState';
 
 export function WeeklyMenuScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'WeeklyMenu'>) {
   const [plan, setPlan] = useState<WeeklyNutritionPlan>();
@@ -61,11 +62,18 @@ export function WeeklyMenuScreen({ navigation }: NativeStackScreenProps<RootStac
             {plan?.generatedAt ? <Text style={styles.generatedText}>Generado automáticamente</Text> : undefined}
           </View>
 
-          <View style={styles.recommendationCard}>
+          {isPlanBlocked(plan) ? (
+            <View style={styles.blockedCard}>
+              <Text style={styles.blockedTitle}>Mi Plan bloqueado</Text>
+              <Text style={styles.blockedText}>{plan?.lockReason ?? 'Tu nutricionista a?n debe activar el plan nutricional.'}</Text>
+            </View>
+          ) : undefined}
+
+          {!isPlanBlocked(plan) ? <View style={styles.recommendationCard}>
             <Text style={styles.recommendationTitle}>Recomendación automática</Text>
             <Text style={styles.recommendationText}>Genera un menú semanal según tus necesidades energéticas y preferencias.</Text>
             <PrimaryButton loading={generating} onPress={generateMenu} title={generating ? 'Generando...' : 'Generar menús'} />
-          </View>
+          </View> : undefined}
 
           <View style={styles.safetyCard}>
             <Text style={styles.safetyTitle}>Menús seguros para tu perfil</Text>
@@ -173,6 +181,9 @@ const styles = StyleSheet.create({
   mealSlot: { color: colors.primaryDark, fontSize: 12, fontWeight: '900', letterSpacing: 0.4, textTransform: 'uppercase' },
   mealTitle: { color: colors.text, fontSize: 16, fontWeight: '800' },
   mealAction: { color: colors.primaryDark, fontSize: 12, fontWeight: '900' },
+  blockedCard: { backgroundColor: '#FEE4E2', borderRadius: 20, gap: 6, marginTop: 16, padding: 16 },
+  blockedText: { color: colors.danger, fontSize: 14, lineHeight: 20 },
+  blockedTitle: { color: colors.danger, fontSize: 18, fontWeight: '900' },
   recommendationCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 22, borderWidth: 1, gap: 12, marginTop: 16, padding: 18 },
   recommendationText: { color: colors.muted, fontSize: 14, lineHeight: 20 },
   recommendationTitle: { color: colors.text, fontSize: 18, fontWeight: '900' },

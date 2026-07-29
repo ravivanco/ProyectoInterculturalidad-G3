@@ -28,10 +28,12 @@ export type MenuDay = {
 export type WeeklyNutritionPlan = {
   id: string;
   name: string;
-  status: 'active' | 'generated' | 'draft';
+  status: 'blocked' | 'pending' | 'active' | 'generated' | 'draft';
   weekLabel: string;
   energyTarget: number;
   days: MenuDay[];
   generatedAt?: string;
   safetyNotes?: string[];
+  startDate?: string;
+  lockReason?: string;
 };
