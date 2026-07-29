@@ -6,7 +6,7 @@ import { PrimaryButton } from '../../components/PrimaryButton';
 import type { RootStackParamList } from '../../navigation/types';
 import { exerciseService } from '../../services/exerciseService';
 import { colors } from '../../theme/colors';
-import type { Exercise, ExerciseCategory } from '../../types/exercise';
+import type { Exercise, ExerciseCategory, WeeklyExerciseRoutine } from '../../types/exercise';
 
 const categories: Array<ExerciseCategory | 'Todas'> = ['Todas', 'Cardio', 'Fuerza', 'Flexibilidad', 'Movilidad'];
 
@@ -17,12 +17,16 @@ const categories: Array<ExerciseCategory | 'Todas'> = ['Todas', 'Cardio', 'Fuerz
  */
 export function ExercisesScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Exercises'>) {
   const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [weeklyRoutine, setWeeklyRoutine] = useState<WeeklyExerciseRoutine[]>([]);
   const [category, setCategory] = useState<ExerciseCategory | 'Todas'>('Todas');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    exerciseService.getExercises()
-      .then(setExercises)
+    Promise.all([exerciseService.getExercises(), exerciseService.getWeeklyRoutine()])
+      .then(([catalog, routine]) => {
+        setExercises(catalog);
+        setWeeklyRoutine(routine);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -79,6 +83,24 @@ export function ExercisesScreen({ navigation }: NativeStackScreenProps<RootStack
           <Text style={styles.sectionTitle}>Recomendados para tu perfil</Text>
           <Text style={styles.sectionText}>Rutinas sugeridas según tu actividad física, objetivo y condiciones registradas.</Text>
           {recommendedExercises.map((exercise) => <RecommendedCard exercise={exercise} key={exercise.id} />)}
+        </View>
+      ) : undefined}
+
+      {!loading ? (
+        <View style={styles.weekSection}>
+          <Text style={styles.sectionTitle}>Rutina semanal anticipada</Text>
+          <Text style={styles.sectionText}>Consulta tus ejercicios programados antes de cada día.</Text>
+          {weeklyRoutine.map((day) => (
+            <View key={day.day} style={styles.weekDayCard}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.weekDayTitle}>{day.day}</Text>
+                <Text style={styles.meta}>{day.dateLabel}</Text>
+              </View>
+              {day.exercises.length ? day.exercises.map((exercise) => (
+                <Text key={exercise.id} style={styles.weekExercise}>• {exercise.name} · {exercise.durationMinutes} min · {exercise.intensity}</Text>
+              )) : <Text style={styles.emptyText}>No tienes ejercicios programados para este día.</Text>}
+            </View>
+          ))}
         </View>
       ) : undefined}
 
@@ -142,4 +164,8 @@ const styles = StyleSheet.create({
   sectionTitle: { color: colors.text, fontSize: 20, fontWeight: '900' },
   subtitle: { color: colors.muted, fontSize: 16, lineHeight: 22 },
   title: { color: colors.text, fontSize: 32, fontWeight: '900' },
+  weekDayCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 18, borderWidth: 1, gap: 8, padding: 16 },
+  weekDayTitle: { color: colors.text, fontSize: 17, fontWeight: '900' },
+  weekExercise: { color: colors.text, fontSize: 14, lineHeight: 20 },
+  weekSection: { gap: 12 },
 });
