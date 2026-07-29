@@ -3,14 +3,19 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 
+import routes from "./routes";
 import healthRoutes from "./routes/health.routes";
 import exerciseRoutes from "./routes/exercise.routes";
 import additionalIntakeRoutes from "./routes/additionalIntake.routes";
 import planExerciseRoutes from "./routes/planExercise.routes";
 import exerciseTrackingRoutes from "./routes/exerciseTracking.routes";
 import alertRoutes from "./routes/alert.routes";
+import dishRoutes from "./routes/dishRoutes";
+import nutritionPlanWeekRoutes from "./routes/nutritionPlanWeekRoutes";
+import weekMenuRoutes from "./routes/weekMenuRoutes";
 
 import { errorMiddleware } from "./middleware/error.middleware";
+import { setupSwagger } from "./config/swagger";
 
 const app = express();
 
@@ -26,7 +31,7 @@ app.use(
   })
 );
 
-// Catálogo y recomendaciones de ejercicios
+// Catálogo de ejercicios
 app.use(
   "/api/exercises",
   exerciseRoutes
@@ -38,7 +43,7 @@ app.use(
   additionalIntakeRoutes
 );
 
-// Ejercicios asignados a una semana y día del plan
+// Ejercicios asignados al plan
 app.use(
   "/api/nutrition-plans/weeks/:weekId/days/:day/exercises",
   planExerciseRoutes
@@ -56,10 +61,32 @@ app.use(
   alertRoutes
 );
 
-// Ruta de salud
-app.use("/", healthRoutes);
+// Platos
+app.use(
+  "/api/dishes",
+  dishRoutes
+);
 
-// Middleware de errores: siempre debe ir al final
+// Semanas del plan nutricional
+app.use(
+  "/api/nutrition-plans",
+  nutritionPlanWeekRoutes
+);
+
+// Menús semanales
+app.use(
+  "/api/weeks",
+  weekMenuRoutes
+);
+
+// Rutas generales
+app.use("/", healthRoutes);
+app.use("/api", routes);
+
+// Swagger
+setupSwagger(app);
+
+// Middleware de errores: siempre al final
 app.use(errorMiddleware);
 
 export default app;

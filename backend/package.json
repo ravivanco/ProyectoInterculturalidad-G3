@@ -7,7 +7,11 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsnd --respawn --transpile-only src/index.ts",
-    "sequelize": "sequelize"
+    "dev:capturas": "tsnd --transpile-only src/capturasDemoApp.ts",
+    "sequelize": "sequelize",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:migrate": "sequelize db:migrate"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",
@@ -37,6 +41,7 @@
     "@types/multer": "^2.2.0",
     "@types/node": "^20.14.9",
     "@types/node-cron": "^3.0.11",
+    "@types/pg": "^8.20.0",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.6",
     "eslint": "^8.57.0",

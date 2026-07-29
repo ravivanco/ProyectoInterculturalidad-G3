@@ -1,35 +1,45 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, MoreHorizontal, User } from 'lucide-react';
+import { Search, Filter, MoreHorizontal, User, X } from 'lucide-react';
 import { patientsAPI } from './services/patientsApi';
-import type { Patient } from '../../shared/types';
+import type { Patient, TreatmentState } from '../../shared/types';
+
+const TREATMENT_OPTIONS: { value: TreatmentState | ''; label: string }[] = [
+  { value: '', label: 'Todos los estados' },
+  { value: 'Pendiente', label: 'Pendiente' },
+  { value: 'Activo', label: 'Activo' },
+  { value: 'Suspendido', label: 'Suspendido' },
+  { value: 'Finalizado', label: 'Finalizado' },
+];
 
 export default function Patients() {
   const navigate = useNavigate();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [treatmentFilter, setTreatmentFilter] = useState<TreatmentState | ''>('');
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     loadPatients();
-  }, []);
+  }, [searchTerm, treatmentFilter]);
 
   async function loadPatients() {
     setIsLoading(true);
     try {
-      const data = await patientsAPI.getPatients();
+      const data = await patientsAPI.getPatients({
+        search: searchTerm,
+        treatmentStatus: treatmentFilter,
+      });
       setPatients(data);
     } catch (error) {
-      console.error("Error al cargar pacientes", error);
+      console.error('Error al cargar pacientes', error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }
 
-  const filteredPatients = patients.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    p.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPatients = patients;
 
   const getAdherenceColor = (state: string) => {
     switch(state) {
@@ -78,10 +88,43 @@ export default function Patients() {
               className="w-full pl-10 pr-4 py-2 bg-surface border border-border text-foreground rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-muted"
             />
           </div>
-          <button className="flex items-center gap-2 text-muted hover:text-foreground px-4 py-2 border border-border rounded-xl bg-surface hover:bg-surface-hover text-sm font-medium transition-colors">
+          <button
+            type="button"
+            onClick={() => setShowFilters((v) => !v)}
+            className={`flex items-center gap-2 px-4 py-2 border rounded-xl text-sm font-medium transition-colors ${
+              treatmentFilter
+                ? 'border-primary bg-primary/10 text-foreground'
+                : 'text-muted hover:text-foreground border-border bg-surface hover:bg-surface-hover'
+            }`}
+          >
             <Filter size={16} /> Filtros
+            {treatmentFilter ? <span className="text-[11px] font-bold">1</span> : null}
           </button>
         </div>
+
+        {showFilters && (
+          <div className="px-4 py-3 border-b border-border bg-surface flex flex-wrap items-center gap-3">
+            <label className="text-[12px] font-semibold text-muted">Estado del tratamiento</label>
+            <select
+              value={treatmentFilter}
+              onChange={(e) => setTreatmentFilter(e.target.value as TreatmentState | '')}
+              className="px-3 py-2 bg-surface border border-border rounded-xl text-sm text-foreground focus:outline-none focus:border-primary"
+            >
+              {TREATMENT_OPTIONS.map((opt) => (
+                <option key={opt.label} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            {treatmentFilter && (
+              <button
+                type="button"
+                onClick={() => setTreatmentFilter('')}
+                className="flex items-center gap-1 text-[12px] text-muted hover:text-foreground"
+              >
+                <X size={14} /> Limpiar filtros
+              </button>
+            )}
+          </div>
+        )}
 
         {isLoading && (
           <div className="py-20 flex flex-col items-center justify-center">
@@ -167,9 +210,9 @@ export default function Patients() {
         )}
 
         {/* Empty Search Result */}
-        {!isLoading && patients.length > 0 && filteredPatients.length === 0 && (
+        {!isLoading && patients.length === 0 && (searchTerm || treatmentFilter) && (
           <div className="py-16 text-center">
-            <p className="text-muted text-sm">No se encontraron pacientes con el término "{searchTerm}"</p>
+            <p className="text-muted text-sm">No se encontraron pacientes con los filtros aplicados.</p>
           </div>
         )}
       </div>

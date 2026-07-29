@@ -3,29 +3,31 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const connectionString = process.env.DATABASE_URL;
+const databaseUrl = process.env.DATABASE_URL;
 
-if (!connectionString) {
+if (!databaseUrl) {
   throw new Error(
-    "DATABASE_URL environment variable is missing!"
+    "DATABASE_URL no está definida en el archivo .env"
   );
 }
 
-const sequelize = new Sequelize(connectionString, {
+const sequelize = new Sequelize(databaseUrl, {
   dialect: "postgres",
+
   logging:
     process.env.NODE_ENV === "development"
       ? console.log
       : false,
-  dialectOptions: {
-    ssl:
-      process.env.NODE_ENV === "production"
-        ? {
+
+  dialectOptions:
+    process.env.NODE_ENV === "production"
+      ? {
+          ssl: {
             require: true,
             rejectUnauthorized: false,
-          }
-        : false,
-  },
+          },
+        }
+      : {},
 });
 
 export const connectDB = async (): Promise<void> => {

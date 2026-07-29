@@ -1,3 +1,4 @@
+// API-S1 — Middleware JWT authGuard (Bryan Gualpa)
 import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken, TokenPayload } from '../utils/jwt';
 
