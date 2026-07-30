@@ -14,12 +14,14 @@ import dishRoutes from "./routes/dishRoutes";
 import nutritionPlanWeekRoutes from "./routes/nutritionPlanWeekRoutes";
 import weekMenuRoutes from "./routes/weekMenuRoutes";
 import dashboardNutritionistRoutes from "./routes/dashboardNutritionistRoutes";
+import appointmentRoutes from "./routes/appointment.routes";
 
 import { errorMiddleware } from "./middleware/error.middleware";
 import { setupSwagger } from "./config/swagger";
 
 const app = express();
 
+// Middlewares generales
 app.use(cors());
 app.use(helmet());
 app.use(morgan("dev"));
@@ -86,11 +88,23 @@ app.use(
   dashboardNutritionistRoutes
 );
 
+// Gestión de citas
+app.use(
+  "/api/appointments",
+  appointmentRoutes
+);
+
 // Ruta de salud
-app.use("/", healthRoutes);
+app.use(
+  "/",
+  healthRoutes
+);
 
 // Rutas generales de la API
-app.use("/api", routes);
+app.use(
+  "/api",
+  routes
+);
 
 // Documentación Swagger
 setupSwagger(app);
